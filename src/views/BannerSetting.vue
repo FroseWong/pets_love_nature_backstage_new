@@ -104,6 +104,7 @@ import TopNavBar from '../components/TopNavBar.vue'
           flex-basis: 0;
           display: flex;
           flex-wrap: wrap;
+          justify-content: space-around;
           .btn {
             font-size: 20px;
             width: 150px;
@@ -111,7 +112,7 @@ import TopNavBar from '../components/TopNavBar.vue'
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 10px 10px;
+            margin: 0 30px 10px;
             &.preview {
               color: purple;
               border: 1px solid purple;
