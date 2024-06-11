@@ -2,6 +2,28 @@
   <TopNavBar />
 
   <div class="banner_setting">
+    <!-- 編輯banner div -->
+    <div class="edit_banner_div">
+      <div class="edit_out">
+        <h1 class="edit_title">圖片：</h1>
+        <input class="edit_input" type="text" />
+
+        <h1 class="edit_title">超連結：</h1>
+        <input class="edit_input" type="text" />
+
+        <h1 class="edit_title">大標題：</h1>
+        <input class="edit_input" type="text" />
+
+        <h1 class="edit_title">小標題：</h1>
+        <textarea class="edit_input high" type="text" />
+      </div>
+      <div class="edit_btn_space">
+        <div class="btn cancel">取消</div>
+        <div class="btn update">更新</div>
+      </div>
+    </div>
+
+    <!-- 預覽banner div -->
     <div class="add_banner_btn">新增Banner</div>
     <div class="banner_setting_out">
       <div class="banner_setting_title">
@@ -37,6 +59,65 @@ import TopNavBar from '../components/TopNavBar.vue'
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  .edit_banner_div {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    padding-bottom: 20px;
+    background-color: white;
+    border: 1px solid black;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -10%);
+
+    .edit_out {
+      width: 80%;
+      margin: 0 auto;
+      margin-top: 50px;
+      .edit_title {
+        font-size: 20px;
+      }
+
+      .edit_input {
+        margin-bottom: 20px;
+        width: 100%;
+        padding-left: 10px;
+
+        &:focus {
+          outline: none;
+        }
+        &.high {
+          resize: none;
+        }
+      }
+    }
+
+    .edit_btn_space {
+      display: flex;
+      justify-content: flex-end;
+      .btn {
+        width: 170px;
+        height: 50px;
+        background-color: rgb(1, 1, 133);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+
+        &.cancel {
+        }
+
+        &.update {
+        }
+      }
+    }
+  }
+
   .add_banner_btn {
     margin-top: 100px;
     width: 170px;
@@ -104,10 +185,10 @@ import TopNavBar from '../components/TopNavBar.vue'
           flex-basis: 0;
           display: flex;
           flex-wrap: wrap;
-          justify-content: space-around;
+          // justify-content: space-around;
           .btn {
             font-size: 20px;
-            width: 150px;
+            width: 120px;
             height: 50px;
             display: flex;
             justify-content: center;
