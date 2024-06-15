@@ -4,15 +4,36 @@
       <img class="login_img" src="@/assets/img/5cats.jpeg" alt="" />
 
       <h2 class="login_title">登入</h2>
-      <input class="login_input" type="text" placeholder="請輸入帳號或Email" />
-      <input class="login_input" type="password" placeholder="請輸入密碼" />
+      <input class="login_input" v-model="account" type="text" placeholder="請輸入帳號或Email" />
+      <input class="login_input" v-model="password" type="password" placeholder="請輸入密碼" />
 
-      <div class="login_btn">登入</div>
+      <div class="login_btn" @click="loginBtnClick">登入</div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, ref } from 'vue'
+import { login } from '@/@core/apis/login'
+
+const account = ref('')
+const password = ref('')
+
+onMounted(() => {
+  console.log('mounted')
+})
+
+const loginBtnClick = async () => {
+  console.log('click')
+  const obj = {
+    account: account.value,
+    password: password.value
+  }
+
+  const loginRes = await login(obj)
+  console.log('loginRes', loginRes)
+}
+</script>
 
 <style lang="scss" scoped>
 .login_view {
