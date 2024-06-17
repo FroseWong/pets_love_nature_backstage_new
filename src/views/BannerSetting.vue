@@ -45,6 +45,22 @@
     </div>
 
     <!-- 預覽banner div -->
+    <div class="preview_banner_out_div" v-show="previewBannerShowStatus">
+      <div
+        class="preview_banner_div"
+        :style="{ backgroundImage: 'url(' + previewBannerData.imgUrl + ')' }"
+      >
+        <font-awesome-icon
+          class="fa-solid fa-xmark"
+          :icon="['fas', 'xmark']"
+          @click="closePreviewBanner"
+        />
+        <div class="center_div">
+          <div class="title">{{ previewBannerData.title }}</div>
+          <div class="subtitle">{{ previewBannerData.subtitle }}</div>
+        </div>
+      </div>
+    </div>
     <div class="add_banner_btn" @click="addNewBanner">新增Banner</div>
     <div class="banner_setting_out">
       <div class="banner_setting_title">
@@ -65,7 +81,7 @@
           </div>
           <div class="title grow2">{{ eachBanner.title }}</div>
           <div class="btn_space grow2">
-            <div class="btn preview">預覽</div>
+            <div class="btn preview" @click="openPreviewBanner(eachBanner)">預覽</div>
             <div class="btn edit" @click="editBanner(i)">編輯</div>
             <div class="btn delete" @click="deleteBannerClick(i)">刪除</div>
           </div>
@@ -83,7 +99,14 @@ import { getBanner, addBanner, updateBanner, deleteBanner } from '@/@core/apis/b
 onMounted(async () => {
   bannerData.value = await getBanner()
 })
-
+const previewBannerShowStatus = ref(false)
+const previewBannerData = ref({
+  imgUrl: '',
+  hyperlink: '',
+  title: '',
+  subtitle: '',
+  active: true
+})
 const bannerData = ref([])
 const focusBannerIndex = ref(0)
 const editBannerModalShow = ref(false)
@@ -95,6 +118,16 @@ const focusData = ref({
   subtitle: '',
   active: true
 })
+
+const openPreviewBanner = (data) => {
+  console.log(data)
+  previewBannerData.value = data
+  previewBannerShowStatus.value = true
+}
+
+const closePreviewBanner = () => {
+  previewBannerShowStatus.value = false
+}
 
 const closeEditModal = () => {
   editBannerModalShow.value = false
@@ -256,6 +289,54 @@ const deleteBannerClick = async (i) => {
         &.update {
         }
       }
+    }
+  }
+
+  .preview_banner_out_div {
+    width: 80vw;
+    height: 30vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    background-color: white;
+    .preview_banner_div {
+      width: 100%;
+      height: 100%;
+      padding-bottom: 20px;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      border-radius: 5rem;
+      position: relative;
+      .center_div {
+        position: absolute;
+        width: 40vw;
+        height: 8vw;
+        border-radius: 1rem;
+        background-color: rgba(249, 240, 234, 0.9);
+        bottom: 10.25px;
+        top: 82%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+
+        .title {
+          font-size: 3vw;
+        }
+        .subtitle {
+          font-size: 1.75vw;
+        }
+      }
+    }
+
+    .fa-xmark {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      cursor: pointer;
+      font-size: 20px;
     }
   }
 
