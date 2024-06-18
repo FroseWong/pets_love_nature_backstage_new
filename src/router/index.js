@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import Login from '../views/LoginView.vue'
 import BannerSetting from '../views/BannerSetting.vue'
 import ProductsView from '../views/ProductsView.vue'
+import { computed } from 'vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -38,16 +39,19 @@ const router = createRouter({
   ]
 })
 
+const token = computed(() => localStorage.getItem('token')) 
+
 // 檢測是否已登入
 router.beforeEach((to, from, next) => {
-  console.log('to', to)
-  console.log('from', from)
-  const token = localStorage.getItem('token')
-  console.log('token', token)
-  if (!token) {
+  // console.log('to', to)
+  // console.log('from', from)
+  // const token = localStorage.getItem('token')
+  // console.log('token', token.value)
+  
+
+  if (!token.value  && to.name !== 'login' && from.name !== 'login') {
     next({ name: 'login' })
   } else next()
-  return
 })
 
 export default router
