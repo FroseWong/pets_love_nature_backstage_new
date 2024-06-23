@@ -4,6 +4,8 @@ import Login from '../views/LoginView.vue'
 import BannerSetting from '../views/BannerSetting.vue'
 import ProductsView from '../views/ProductsView.vue'
 import OrderManage from '../views/OrderManage.vue'
+import ProductView from '../views/ProductView.vue'
+
 
 import { computed } from 'vue'
 const router = createRouter({
@@ -28,6 +30,11 @@ const router = createRouter({
       path: '/products',
       name: 'ProductsView',
       component: ProductsView
+    },
+    {
+      path: '/product/:id',
+      name: 'ProductView',
+      component: ProductView
     },
     {
       path: '/order-manage',
