@@ -50,14 +50,17 @@ const token = computed(() => localStorage.getItem('token'))
 
 // 檢測是否已登入
 router.beforeEach((to, from, next) => {
-  // console.log('to', to)
   // console.log('from', from)
   // const token = localStorage.getItem('token')
   // console.log('token', token.value)
 
   if (!token.value && to.name !== 'login' && from.name !== 'login') {
     next({ name: 'login' })
-  } else next()
+  } else if (token.value && to.name === 'home') {
+    next({ name: 'ProductsView' })
+  } else {
+    next()
+  }
 })
 
 export default router
