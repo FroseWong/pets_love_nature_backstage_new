@@ -1,3 +1,112 @@
+<script setup>
+import { onMounted, ref } from "vue";
+
+import TopNavBar from '../components/TopNavBar.vue'
+
+import { useAxiosGet } from '../@core/apis/axios'
+import { routeLocationKey } from "vue-router";
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+
+const searchValue = ref({
+  searchText: "",
+  sortOrder: "1",
+  sortBy: "",
+  sortOrder: -1,
+  page: 1,
+  limit: 10,
+  filterCategory: "",
+})
+
+const onlineStatus = ref("");
+
+const data = ref([]);
+
+// const obj = ref({});
+let obj = {};
+const getToken = () => {
+  const token = localStorage.getItem('token')
+  obj = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  }
+}
+
+
+const getData = async()=> {
+    console.log('36' ,searchValue.value);
+
+    console.log('120' , obj);
+    let params ={};
+
+    params = {
+            ...searchValue.value,
+    }
+    if(onlineStatus.value !== ""){
+        params.onlineStatus = onlineStatus.value
+    }
+
+     
+    const queryString = new URLSearchParams(params).toString()
+
+    try{
+        let res = await useAxiosGet(`/admin/product?${queryString}` )
+        // let res = await useAxiosGet(`/admin/product/getFilterProductList?${queryString}` )
+        
+        // const response = await fetch(
+        // `https://pets-love-nature-backend-n.onrender.com/api/v1/product/getFilterProductList?${queryString}`,
+
+        // {
+        //     method: "GET",
+        // }
+
+        // );
+
+        // const res = await response.json();
+
+        console.log('storelist ' , res);
+        console.log('storelist ' , res.data.content);
+        data.value= res.data.content
+
+        // data.value= res.data
+    }
+    catch(e){
+        console.log(e);
+    }
+
+}
+
+const updateGetData = () => {
+    getData()
+}
+
+const editProduct = (item)=>{
+    router.push(`/product/${item._id}`);
+}
+
+ const formatTime = (timeString) => {
+    const date = new Date(timeString);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+};
+
+onMounted(async()=>{
+    await getToken();
+
+    getData();
+})
+
+</script>
+
 <template>
       <TopNavBar />
 
@@ -88,7 +197,7 @@
                     </td>
                     <td >
                         <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1">編輯</button>
+                        <button type="button" class="btn btn-outline-secondary me-1" @click="editProduct(item)">編輯</button>
                         <button type="button" class="btn btn-outline-danger">刪除</button>
                     </td>
                 </tr>
@@ -97,106 +206,7 @@
             </table>
     </div>
 </template>
-<script setup>
-import { onMounted, ref } from "vue";
 
-import TopNavBar from '../components/TopNavBar.vue'
-
-import { useAxiosGet } from '../@core/apis/axios'
-
-const searchValue = ref({
-  searchText: "",
-  sortOrder: "1",
-  sortBy: "",
-  sortOrder: -1,
-  page: 1,
-  limit: 10,
-  filterCategory: "",
-})
-
-const onlineStatus = ref("");
-
-const data = ref([]);
-
-// const obj = ref({});
-let obj = {};
-const getToken = () => {
-  const token = localStorage.getItem('token')
-  obj = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json'
-    }
-  }
-}
-
-
-const getData = async()=> {
-    console.log('36' ,searchValue.value);
-
-    console.log('120' , obj);
-    let params ={};
-
-    params = {
-            ...searchValue.value,
-    }
-    if(onlineStatus.value !== ""){
-        params.onlineStatus = onlineStatus.value
-    }
-
-     
-    const queryString = new URLSearchParams(params).toString()
-
-    try{
-        // let res = await useAxiosGet('/admin/product' )
-        // let res = await useAxiosGet(`/admin/product/getFilterProductList?${queryString}` )
-        
-        const response = await fetch(
-        `https://pets-love-nature-backend-n.onrender.com/api/v1/product/getFilterProductList?${queryString}`,
-
-        {
-            method: "GET",
-        }
-
-        );
-
-        const res = await response.json();
-
-        console.log('storelist ' , res);
-        console.log('storelist ' , res.data.content);
-        data.value= res.data.content
-
-        // data.value= res.data
-    }
-    catch(e){
-        console.log(e);
-    }
-
-}
-
-const updateGetData = () => {
-    getData()
-}
-
-
- const formatTime = (timeString) => {
-    const date = new Date(timeString);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-    return `${year}/${month}/${day} ${hours}:${minutes}`;
-};
-
-onMounted(async()=>{
-    await getToken();
-
-    getData();
-})
-
-</script>
 
 <style lang="scss" scoped>
 .container{
