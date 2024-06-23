@@ -1,3 +1,112 @@
+<script setup>
+import { onMounted, ref } from "vue";
+
+import TopNavBar from '../components/TopNavBar.vue'
+
+import { useAxiosGet } from '../@core/apis/axios'
+import { routeLocationKey } from "vue-router";
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+
+const searchValue = ref({
+  searchText: "",
+  sortOrder: "1",
+  sortBy: "",
+  sortOrder: -1,
+  page: 1,
+  limit: 10,
+  filterCategory: "",
+})
+
+const onlineStatus = ref("");
+
+const data = ref([]);
+
+// const obj = ref({});
+let obj = {};
+const getToken = () => {
+  const token = localStorage.getItem('token')
+  obj = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  }
+}
+
+
+const getData = async()=> {
+    console.log('36' ,searchValue.value);
+
+    console.log('120' , obj);
+    let params ={};
+
+    params = {
+            ...searchValue.value,
+    }
+    if(onlineStatus.value !== ""){
+        params.onlineStatus = onlineStatus.value
+    }
+
+     
+    const queryString = new URLSearchParams(params).toString()
+
+    try{
+        let res = await useAxiosGet(`/admin/product?${queryString}` )
+        // let res = await useAxiosGet(`/admin/product/getFilterProductList?${queryString}` )
+        
+        // const response = await fetch(
+        // `https://pets-love-nature-backend-n.onrender.com/api/v1/product/getFilterProductList?${queryString}`,
+
+        // {
+        //     method: "GET",
+        // }
+
+        // );
+
+        // const res = await response.json();
+
+        console.log('storelist ' , res);
+        console.log('storelist ' , res.data.content);
+        data.value= res.data.content
+
+        // data.value= res.data
+    }
+    catch(e){
+        console.log(e);
+    }
+
+}
+
+const updateGetData = () => {
+    getData()
+}
+
+const editProduct = (item)=>{
+    router.push(`/product/${item._id}`);
+}
+
+ const formatTime = (timeString) => {
+    const date = new Date(timeString);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+};
+
+onMounted(async()=>{
+    await getToken();
+
+    getData();
+})
+
+</script>
+
 <template>
       <TopNavBar />
 
@@ -6,26 +115,26 @@
         <div class="search d-flex">
             <div class="me-2 ">
                 分類 <br>
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>全部</option>
-                    <option value="1">貓</option>
-                    <option value="2">狗</option>
-                    <option value="3">鮮食</option>
+                <select  v-model="searchValue.filterCategory" class="form-select" aria-label="Default select example" @change="updateGetData">
+                    <option selected value="">全部</option>
+                    <option value="cat">貓</option>
+                    <option value="dog">狗</option>
+                    <option value="dry">鮮食</option>
                 </select>
             </div>
             <div class="me-2">
                 上架狀態<br>
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>全部</option>
-                    <option value="1">上架中</option>
-                    <option value="2">未上架</option>
+                <select v-model="onlineStatus"  class="form-select" aria-label="Default select example" @change="updateGetData">
+                    <option selected value="">全部</option>
+                    <option value=true>上架中</option>
+                    <option value=false>未上架</option>
                 </select>
             </div>
             <div class="me-2">
                 搜尋
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control me-2" placeholder="搜尋" aria-label="Username" aria-describedby="basic-addon1">
-                    <button type="button" class="btn btn-primary">搜尋</button>
+                    <input type="text" v-model="searchValue.searchText" class="form-control me-2" placeholder="搜尋" aria-label="Username" aria-describedby="basic-addon1">
+                    <button type="button" class="btn btn-primary" @click="updateGetData">搜尋</button>
 
                 </div>
             </div>
@@ -48,7 +157,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <!-- <tr>
                     <th scope="row">D-001</th>
                     <td>鮮嫩雞胸肉凍乾 (前端測試資料)</td>
                     <td>100g</td>
@@ -61,13 +170,17 @@
                         <button type="button" class="btn btn-outline-secondary me-1">編輯</button>
                         <button type="button" class="btn btn-outline-danger">刪除</button>
                     </td>
-                </tr>
+                </tr> -->
                 <tr v-for="(item, index) in data" :key="index">
                     <th scope="row">{{ item.productNumber }}</th>
-                    <td >{{ item.productId.title }}</td>
+                    <!-- <td >{{ item.productId.title }}</td> -->
+                    <td >{{ item.product.title }}</td>
+
                     <td >{{ item.weight }}g</td>
                     <td >
-                        <span v-for="(item,index) in item.productId.category" :key="index">
+                        <span v-for="(item,index) in item.product.category" :key="index">
+
+                        <!-- <span v-for="(item,index) in item.productId.category" :key="index"> -->
                             <span  v-if="item == 'fresh'" class="ms-1">鮮食</span>
                             <span  v-if="item == 'dog'" class="ms-1">狗食</span>
                             <span  v-if="item == 'cat'" class="ms-1">貓食</span>
@@ -76,7 +189,7 @@
                     </td>
                     <td >{{ item.inStock }}</td>
                     <td> 
-                        <span v-if="item.onlineStatus == false">否</span>
+                        <span v-if="item.onlineStatus == false">未上架</span>
                         <span v-if="item.onlineStatus == true">上架中</span>
                     </td>
                     <td >
@@ -84,7 +197,7 @@
                     </td>
                     <td >
                         <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1">編輯</button>
+                        <button type="button" class="btn btn-outline-secondary me-1" @click="editProduct(item)">編輯</button>
                         <button type="button" class="btn btn-outline-danger">刪除</button>
                     </td>
                 </tr>
@@ -93,37 +206,7 @@
             </table>
     </div>
 </template>
-<script setup>
-import { onMounted, ref } from "vue";
 
-import TopNavBar from '../components/TopNavBar.vue'
-
-import { useAxiosGet } from '../@core/apis/axios'
-
-
-const data = ref([]);
-
-const getData = async()=> {
-    let res = await useAxiosGet('/admin/product')
-    data.value= res.data
-}
-
- const formatTime = (timeString) => {
-    const date = new Date(timeString);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-    return `${year}/${month}/${day} ${hours}:${minutes}`;
-};
-
-onMounted(()=>{
-    getData();
-})
-
-</script>
 
 <style lang="scss" scoped>
 .container{
