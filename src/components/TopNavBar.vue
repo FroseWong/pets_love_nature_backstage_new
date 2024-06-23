@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { onUpdated, ref } from 'vue'
+import { onMounted, onUpdated, ref } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const props = defineProps({
@@ -32,6 +32,10 @@ const props = defineProps({
 const navBarStatus = ref('')
 
 onUpdated(() => {
+  navBarStatus.value = props.routeStr
+})
+
+onMounted(() => {
   navBarStatus.value = props.routeStr
 })
 
