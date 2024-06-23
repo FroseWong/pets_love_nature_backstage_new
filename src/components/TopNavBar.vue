@@ -1,21 +1,45 @@
 <template>
   <div class="top_nav_bar">
     <div class="nav_bar_block">
-      <div class="each_nav_bar">商品管理</div>
-      <div class="each_nav_bar">訂單管理</div>
+      <div class="each_nav_bar" :class="{ active: navBarStatus === 'productManage' }">商品管理</div>
+      <div
+        class="each_nav_bar"
+        :class="{ active: navBarStatus === 'orderManage' }"
+        @click="navBtnClick('/order-manage')"
+      >
+        訂單管理
+      </div>
       <div class="each_nav_bar">消費者管理</div>
       <div class="each_nav_bar">庫存管理</div>
       <div class="each_nav_bar">
         網站管理
         <div class="hover_drop_list">
-          <div class="each_item">Banner設定</div>
+          <div class="each_item" @click="navBtnClick('/banner-setting')">Banner設定</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onUpdated, ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const props = defineProps({
+  routeStr: String
+})
+
+const navBarStatus = ref('')
+
+onUpdated(() => {
+  navBarStatus.value = props.routeStr
+})
+
+// 點擊nav bar
+const navBtnClick = (path) => {
+  router.push({ path: path })
+}
+</script>
 
 <style lang="scss" scoped>
 .top_nav_bar {
@@ -36,6 +60,10 @@
       position: relative;
       color: black;
       &:hover {
+        color: rgb(221, 148, 11);
+      }
+
+      &.active {
         color: rgb(221, 148, 11);
       }
 
