@@ -3,8 +3,8 @@
     <div class="nav_bar_block">
       <div
         class="each_nav_bar"
+        :class="{ active: navBarStatus === 'productManage' }"
         @click="navBtnClick('/products')"
-        :class="{ active: navBarStatus === 'products' }"
       >
         商品管理
       </div>
