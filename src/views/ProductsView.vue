@@ -108,7 +108,7 @@ onMounted(async()=>{
 </script>
 
 <template>
-      <TopNavBar />
+      <TopNavBar routeStr="products" />
 
     <div class="container">
         <h2 class="mr-3">商品列表</h2>

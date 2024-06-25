@@ -4,6 +4,7 @@ import Login from '../views/LoginView.vue'
 import BannerSetting from '../views/BannerSetting.vue'
 import ProductsView from '../views/ProductsView.vue'
 import OrderManage from '../views/OrderManage.vue'
+import ProductView from '../views/ProductView.vue'
 
 import { computed } from 'vue'
 const router = createRouter({
@@ -30,6 +31,11 @@ const router = createRouter({
       component: ProductsView
     },
     {
+      path: '/product/:id',
+      name: 'ProductView',
+      component: ProductView
+    },
+    {
       path: '/order-manage',
       name: 'OrderManage',
       component: OrderManage
@@ -53,7 +59,11 @@ router.beforeEach((to, from, next) => {
 
   if (!token && to.name !== 'login' && from.name !== 'login') {
     next({ name: 'login' })
-  } else next()
+  } else if (token && to.name === 'home') {
+    next({ name: 'ProductsView' })
+  } else {
+    next()
+  }
 })
 
 export default router
