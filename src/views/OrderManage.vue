@@ -68,6 +68,98 @@
       </div>
     </div>
 
+    <!-- check modal -->
+    <div
+      class="modal fade"
+      id="checkModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <!-- loading -->
+      <div v-show="checkData.orderProductList.length === 0" class="page_loading"></div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="operate_div">
+              <div class="each_data">
+                <div class="each_title">訂單編號</div>
+                <div class="each_content">{{ checkData.orderData._id }}</div>
+              </div>
+              <div class="each_data">
+                <div class="each_title">email</div>
+                <div class="each_content">{{ checkData.orderData.email }}</div>
+              </div>
+
+              <div class="each_data">
+                <div class="each_title">商品狀態</div>
+                <div class="each_content">
+                  <div class="text">{{ transformStatus(checkData.orderData.orderStatus) }}</div>
+                </div>
+              </div>
+
+              <div class="each_data">
+                <div class="each_title">商品狀態流程</div>
+                <div class="each_content">
+                  <div class="step_div">
+                    <div class="each_step" v-for="eachStepStr in stepStringArr" :key="eachStepStr">
+                      -- {{ eachStepStr }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="list_div">
+              <h2>購買清單</h2>
+              <div class="list_table_out">
+                <table class="list_table">
+                  <thead class="t_head">
+                    <tr class="head_tr">
+                      <th class="head_th">商品</th>
+                      <th class="head_th">單價</th>
+                      <th class="head_th">數量</th>
+                      <th class="head_th">總計</th>
+                    </tr>
+                  </thead>
+                  <tbody class="t_body">
+                    <tr
+                      class="each_list"
+                      v-for="eachList in checkData.orderProductList"
+                      :key="eachList.productId + eachList.weight"
+                      v-show="checkData.orderProductList.length > 0"
+                    >
+                      <th class="body_th">{{ eachList.productTitle }}</th>
+                      <td class="body_td">${{ eachList.price }}</td>
+                      <td class="body_td">{{ eachList.quantity }}</td>
+                      <td class="body_td">${{ eachList.price * eachList.quantity }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="total_price">
+                <span class="text">總金額</span>
+                <span class="num">${{ orderProductListTotalPrice }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
     <div class="top_div">
       <div v-show="showSearchData.show" class="left">
         已搜尋 {{ showSearchData.searchText }} 共{{ showSearchData.totalDocuments }}項符合搜尋
@@ -139,7 +231,14 @@
           <td class="body_td">{{ eachOrder.email }}</td>
           <td class="body_td">{{ transformStatus(eachOrder.orderStatus) }}</td>
           <td class="body_td">
-            <div class="check_btn">查看</div>
+            <div
+              class="check_btn"
+              @click="checkBtnClick(eachOrder, index), getStepStrArr(eachOrder.orderStatus)"
+              data-bs-toggle="modal"
+              data-bs-target="#checkModal"
+            >
+              查看
+            </div>
           </td>
           <td class="body_td">
             <font-awesome-icon
@@ -198,7 +297,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import TopNavBar from '../components/TopNavBar.vue'
-import { getOrder, updateOrder } from '@/@core/apis/orderManage'
+import { getOrder, updateOrder, getOrderList } from '@/@core/apis/orderManage'
 const statusMap = new Map([
   [1, '訂單成立，處理中'],
   [2, '已出貨，運送中'],
@@ -216,6 +315,63 @@ const operateData = ref({
   userId: '',
   _id: ''
 })
+
+// 點擊查看要顯示的資料
+const checkData = ref({
+  orderData: {
+    email: '',
+    orderStatus: -3,
+    userId: '',
+    _id: ''
+  },
+  orderIndex: 0,
+  orderProductList: [
+    {
+      productId: '664c984699eb1ab9b3c4f679',
+      price: 180,
+      quantity: 2,
+      productTitle: '鮮嫩雞胸肉凍乾66',
+      coverImg:
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
+    },
+    {
+      productId: '664c984699eb1ab9b3c4f679',
+      price: 180,
+      quantity: 2,
+      productTitle: '鮮嫩雞胸肉凍乾66',
+      coverImg:
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
+    },
+    {
+      productId: '664c984699eb1ab9b3c4f679',
+      price: 180,
+      quantity: 2,
+      productTitle: '鮮嫩雞胸肉凍乾66',
+      coverImg:
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
+    },
+    {
+      productId: '664c984699eb1ab9b3c4f679',
+      price: 180,
+      quantity: 2,
+      productTitle: '鮮嫩雞胸肉凍乾66',
+      coverImg:
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
+    }
+  ]
+})
+
+const orderProductListTotalPrice = computed(() => {
+  const totalPrice = checkData.value.orderProductList.reduce((acc, cur) => {
+    return acc + cur.price * cur.quantity
+  }, 0)
+  return totalPrice
+})
+
 const operateIndex = ref(0) // 紀錄點擊的是哪一個index
 const normalStepArr = ref([-3, 1, 2, 3, 4]) //正常流程arr
 const returnStepArr = ref([-1, -2]) // 退貨流程arr
@@ -401,6 +557,18 @@ const operateBtnClick = (orderData, index) => {
   operateData.value = orderData
   operateIndex.value = index
   console.log('operateData', operateData.value)
+}
+
+const checkBtnClick = async (orderData, index) => {
+  console.log()
+  if (orderData?._id) {
+    checkData.value.orderProductList.length = 0
+    const orderListData = await getOrderList(orderData?._id)
+    console.log('orderListData', orderListData)
+    checkData.value.orderData = orderData
+    checkData.value.orderIndex = index
+    checkData.value.orderProductList = orderListData[0].orderProductList
+  }
 }
 
 // 取得step arr 文字
@@ -613,50 +781,221 @@ const changeStep = async (str) => {
 
   // bootstrap
   .modal {
-    &.operate {
-      .operate_div {
+    .operate_div {
+      display: flex;
+      flex-direction: column;
+      .each_data {
         display: flex;
-        flex-direction: column;
-        .each_data {
+        align-items: center;
+        margin-bottom: 10px;
+        .each_title {
+          width: 130px;
+        }
+        .each_content {
           display: flex;
           align-items: center;
-          margin-bottom: 10px;
-          .each_title {
-            width: 130px;
+          .text {
           }
-          .each_content {
-            display: flex;
-            align-items: center;
-            .text {
-            }
-            .btn_space {
-              .btn {
-                background-color: red;
-                // margin: 0 5px;
-                margin-right: 10px;
-                &.normal {
-                  background-color: rgb(1, 169, 1);
-                  &:hover {
-                    background-color: rgb(0, 195, 0);
-                  }
+          .btn_space {
+            .btn {
+              background-color: red;
+              // margin: 0 5px;
+              margin-right: 10px;
+              &.normal {
+                background-color: rgb(1, 169, 1);
+                &:hover {
+                  background-color: rgb(0, 195, 0);
                 }
-                &.return {
-                  background-color: rgb(172, 172, 172);
-                  &:hover {
-                    background-color: rgb(198, 197, 197);
-                  }
+              }
+              &.return {
+                background-color: rgb(172, 172, 172);
+                &:hover {
+                  background-color: rgb(198, 197, 197);
                 }
               }
             }
-            .step_div {
-              display: flex;
-              flex-direction: column;
-              .each_step {
+          }
+          .step_div {
+            display: flex;
+            flex-direction: column;
+            .each_step {
+            }
+          }
+        }
+      }
+    }
+
+    .list_div {
+      .list_table_out {
+        max-height: 300px;
+        overflow-y: auto;
+        .list_table {
+          width: 100%;
+          .t_head {
+            .head_tr {
+            }
+            .head_th {
+            }
+          }
+          .t_body {
+            .each_list {
+              margin-bottom: 30px;
+              height: 50px;
+              .body_th {
+              }
+              .body_td {
               }
             }
           }
         }
       }
+      .total_price {
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 50px;
+        .text {
+        }
+        .num {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  /* Absolute Center Spinner */
+  .page_loading {
+    position: fixed;
+    z-index: 999;
+    height: 1em;
+    width: 2em;
+    overflow: show;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+  /* Transparent Overlay */
+  .page_loading:before {
+    content: '';
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+  }
+
+  /* :not(:required) hides these rules from IE9 and below */
+  .page_loading:not(:required) {
+    /* hide "loading..." text */
+    font: 0/0 a;
+    color: transparent;
+    text-shadow: none;
+    background-color: transparent;
+    border: 0;
+  }
+
+  .page_loading:not(:required):after {
+    content: '';
+    display: block;
+    font-size: 20px;
+    width: 1em;
+    height: 1em;
+    margin-top: -0.5em;
+    -webkit-animation: spinner 1500ms infinite linear;
+    -moz-animation: spinner 1500ms infinite linear;
+    -ms-animation: spinner 1500ms infinite linear;
+    -o-animation: spinner 1500ms infinite linear;
+    animation: spinner 1500ms infinite linear;
+    border-radius: 0.5em;
+    -webkit-box-shadow:
+      rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em -1.1em 0 0;
+    box-shadow:
+      rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em -1.1em 0 0;
+  }
+
+  /* Animation */
+
+  @-webkit-keyframes spinner {
+    0% {
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      -moz-transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @-moz-keyframes spinner {
+    0% {
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      -moz-transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @-o-keyframes spinner {
+    0% {
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      -moz-transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes spinner {
+    0% {
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      -moz-transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      -o-transform: rotate(360deg);
+      transform: rotate(360deg);
     }
   }
 }

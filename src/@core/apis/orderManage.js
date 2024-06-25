@@ -32,3 +32,9 @@ export const updateOrder = async (bodyObj) => {
 
   await useAxiosPatch('/admin/updateOrder', bodyObj, obj)
 }
+
+export const getOrderList = async (orderId) => {
+  const obj = getToken()
+  const res = await useAxiosGet(`/admin/order/${orderId}`, obj)
+  return res?.data
+}

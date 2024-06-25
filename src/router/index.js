@@ -46,16 +46,12 @@ const router = createRouter({
   ]
 })
 
-const token = computed(() => localStorage.getItem('token'))
-
 // 檢測是否已登入
 router.beforeEach((to, from, next) => {
-  // console.log('to', to)
-  // console.log('from', from)
-  // const token = localStorage.getItem('token')
-  // console.log('token', token.value)
+  const token = localStorage.getItem('token')
+  // console.log('token', token)
 
-  if (!token.value && to.name !== 'login' && from.name !== 'login') {
+  if (!token && to.name !== 'login' && from.name !== 'login') {
     next({ name: 'login' })
   } else next()
 })
