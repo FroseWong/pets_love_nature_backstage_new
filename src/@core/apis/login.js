@@ -13,7 +13,7 @@ export const login = async (data) => {
     // 成功登入
     console.log('成功登入')
     localStorage.setItem('token', res?.data?.token)
-    router.push({ path: '/banner-setting' })
+    router.push({ path: '/products' })
   } else {
     // 登入失敗
     // const obj = {
