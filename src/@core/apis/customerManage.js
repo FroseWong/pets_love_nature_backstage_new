@@ -23,5 +23,5 @@ export const getCustomerList = async (params) => {
 export const updateCustomerAccountStatus = async (bodyObj) => {
   const obj = getToken()
   const res = await useAxiosPatch('/admin/customers', bodyObj, obj)
-  return res?.data
+  return res
 }

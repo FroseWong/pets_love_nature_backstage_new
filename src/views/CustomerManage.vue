@@ -201,9 +201,9 @@
       </div>
     </div>
     <div class="btn_div">
-      <div class="btn_s normal" @click="multiChangeAccountStatus(1)">正常</div>
-      <div class="btn_s block" @click="multiChangeAccountStatus(0)">封鎖</div>
-      <div class="btn_s save" @click="saveBtnClick">儲存</div>
+      <div class="normal btn btn-primary" @click="multiChangeAccountStatus(1)">正常</div>
+      <div class="block btn btn-secondary" @click="multiChangeAccountStatus(0)">封鎖</div>
+      <div class="save btn btn-primary" @click="saveBtnClick">儲存</div>
     </div>
   </div>
 </template>
@@ -295,7 +295,6 @@ onMounted(async () => {
   }
   const res = await getCustomerList(obj)
   if (res) {
-    console.log('res.data', res.data)
     customerData.value = res.data
     originData.value = res.data.map((eachCustomer) => {
       const obj = {
@@ -484,6 +483,10 @@ const multiChangeAccountStatus = (num) => {
 
 const saveBtnClick = async () => {
   const userData = []
+  const showUserData = {
+    status0: [],
+    status1: []
+  }
   for (let i = 0; i < customerData.value.length; i++) {
     // for (let j = 0; j < originData.value; j++) {
     //   if(customerData)
@@ -493,11 +496,58 @@ const saveBtnClick = async () => {
         id: customerData.value[i]._id,
         AccountStatus: customerData.value[i].accountStatus
       }
+
+      const showObj = {
+        email: customerData.value[i].email,
+        accountStatus: customerData.value[i].accountStatus
+      }
+
       userData.push(obj)
+
+      if (showObj.accountStatus === 1) showUserData.status1.push(showObj)
+      else if (showObj.accountStatus === 0) showUserData.status0.push(showObj)
     }
   }
   if (userData.length > 0) {
-    await updateCustomerAccountStatus({ userData })
+    let totalStr = ''
+
+    if (showUserData.status1.length > 0) {
+      let status1Str = '將帳號狀態改成正常： \n'
+
+      for (let i = 0; i < showUserData.status1.length; i++) {
+        status1Str += `${showUserData.status1[i].email}\n`
+      }
+
+      totalStr += `${status1Str}`
+    }
+
+    if (showUserData.status0.length > 0) {
+      let status0Str = '將帳號狀態改為封鎖： \n'
+
+      if (totalStr) status0Str = '\n\n' + status0Str
+
+      for (let i = 0; i < showUserData.status0.length; i++) {
+        status0Str += `${showUserData.status0[i].email}\n`
+      }
+
+      totalStr += `${status0Str}`
+    }
+
+    const changeConfirm = confirm(`將進行以下調整\n\n${totalStr}`)
+    if (changeConfirm) {
+      const res = await updateCustomerAccountStatus({ userData })
+      if (res?.status === 'success') {
+        alert('帳號狀態修改成功')
+        originData.value = customerData.value.map((eachCustomer) => {
+          const obj = {
+            accountStatus: eachCustomer.accountStatus,
+            _id: eachCustomer._id
+          }
+
+          return obj
+        })
+      }
+    }
   }
 }
 
@@ -673,24 +723,16 @@ const checkBtnClick = (data) => {
     border-bottom: 1px solid rgb(160, 158, 158);
     background-color: white;
     align-items: center;
-    .btn_s {
-      width: 50px;
-      height: 24px;
-      text-align: center;
-      background-color: rgb(156, 154, 154);
-      cursor: pointer;
-      color: BLACK;
-      margin: 0 30px;
-      &:hover {
-        background-color: rgb(199, 199, 199);
-      }
-      &.normal {
-      }
-      &.block {
-      }
-      &.save {
-        margin-left: auto;
-      }
+    padding: 0 50px;
+    .normal {
+      margin-right: 30px;
+    }
+
+    .block {
+    }
+
+    .save {
+      margin-left: auto;
     }
   }
 
