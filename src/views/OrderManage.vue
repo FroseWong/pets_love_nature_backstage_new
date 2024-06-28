@@ -407,20 +407,46 @@ const tempRequestSameRef = computed(() => {
 }) // 完全一致 0:false/1:true
 
 onMounted(async () => {
-  const obj = {
-    page: '1', // 頁數
-    limit: '10',
-    filterStatus: 1, // 物流排序 1:小到大 / 0:大到小
-    searchText: '', // 搜尋關鍵字
-    requestSame: '', // 完全一致 0:false/1:true
-    searchType: '' // 文字搜尋種類 email,orderNum
-  }
-  const res = await getOrder(obj)
-  console.log('orderRes', res)
-  if (res) {
-    orderData.value = res.OrderData
-    pageData.value = res.page
-    generatePaginationArr(pageData.value)
+  const email = sessionStorage.getItem('orderManageEmail')
+  if (email) {
+    tempSearchTypeRef.value = 'email'
+    tempSearchTextRef.value = email
+    sameRef.value = true
+    const obj = {
+      page: '1', // 頁數
+      limit: '10',
+      filterStatus: 1, // 物流排序 1:小到大 / 0:大到小
+      searchText: email, // 搜尋關鍵字
+      requestSame: 1, // 完全一致 0:false/1:true
+      searchType: 'email' // 文字搜尋種類 email,orderNum
+    }
+    const res = await getOrder(obj)
+    console.log('orderRes', res)
+    if (res) {
+      orderData.value = res.OrderData
+      pageData.value = res.page
+      generatePaginationArr(pageData.value)
+      sessionStorage.removeItem('orderManageEmail')
+      showSearchData.value.show = true
+      showSearchData.value.searchText = email
+      if (res?.page) showSearchData.value.totalDocuments = res?.page.totalDocuments
+    }
+  } else {
+    const obj = {
+      page: '1', // 頁數
+      limit: '10',
+      filterStatus: 1, // 物流排序 1:小到大 / 0:大到小
+      searchText: '', // 搜尋關鍵字
+      requestSame: '', // 完全一致 0:false/1:true
+      searchType: '' // 文字搜尋種類 email,orderNum
+    }
+    const res = await getOrder(obj)
+    console.log('orderRes', res)
+    if (res) {
+      orderData.value = res.OrderData
+      pageData.value = res.page
+      generatePaginationArr(pageData.value)
+    }
   }
 })
 

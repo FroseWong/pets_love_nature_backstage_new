@@ -5,6 +5,7 @@ import BannerSetting from '../views/BannerSetting.vue'
 import ProductsView from '../views/ProductsView.vue'
 import OrderManage from '../views/OrderManage.vue'
 import ProductView from '../views/ProductView.vue'
+import CustomerManage from '../views/CustomerManage.vue'
 
 import { computed } from 'vue'
 const router = createRouter({
@@ -36,6 +37,11 @@ const router = createRouter({
       component: ProductView
     },
     {
+      path: '/customer-manage',
+      name: 'CustomerManage',
+      component: CustomerManage
+    },
+    {
       path: '/order-manage',
       name: 'OrderManage',
       component: OrderManage
@@ -48,7 +54,7 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
-    { path: '/:pathMatch(.*)', component: HomeView }
+    { path: '/:pathMatch(.*)', component: ProductsView }
   ]
 })
 

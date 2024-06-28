@@ -15,7 +15,13 @@
       >
         訂單管理
       </div>
-      <div class="each_nav_bar">消費者管理</div>
+      <div
+        class="each_nav_bar"
+        :class="{ active: navBarStatus === 'customerManage' }"
+        @click="navBtnClick('/customer-manage')"
+      >
+        消費者管理
+      </div>
       <div class="each_nav_bar">庫存管理</div>
       <div class="each_nav_bar">
         網站管理
