@@ -3,9 +3,10 @@ import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
 
-import { useAxiosGet , useAxiosPost } from '../@core/apis/axios'
+import { useAxiosGet , useAxiosPost , useAxiosPatch } from '../@core/apis/axios'
 
 import { useRoute } from 'vue-router';
+import { useAxiosDelete } from "../@core/apis/axios";
 const route = useRoute();
 let obj;
 const routeId = ref("");
@@ -39,7 +40,19 @@ const data = ref( {
                 "productId": "664c90d099eb1ab9b3c4f643",
                 "weight": 200,
                 "price": 180,
-                "inStock": 900,
+                "inStock": 90,
+                "onlineStatus": true,
+                "createdAt": "2024-05-21T12:17:20.832Z",
+                "updatedAt": "2024-06-17T15:32:13.032Z",
+                "onlineDate": "2024-06-17T15:32:13.031Z"
+            },
+            {
+                "isValid": true,
+                "_id": "664c90d099eb1ab9b3c4f645",
+                "productId": "664c90d099eb1ab9b3c4f643",
+                "weight": 22,
+                "price": 10,
+                "inStock": 10,
                 "onlineStatus": true,
                 "createdAt": "2024-05-21T12:17:20.832Z",
                 "updatedAt": "2024-06-17T15:32:13.032Z",
@@ -50,26 +63,32 @@ const data = ref( {
     },
 );
 
+
+const newProductSpecList = ref([])
+
+// ai 參數 
+const AIInputWord = ref("")
+const AIResultWord = ref("")
+// ai 參數
+
 const getToken = () => {
   const token = localStorage.getItem('token')
   obj = {
     headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json'
+      Authorization: `Bearer ${token}`
     }
   }
+
 }
 
 
 const getData = async()=> {
-
-
     try{
         let res = await useAxiosGet(`/admin/product/${routeId.value}` )
 
        
         console.log('60' , res);
-        // data.value= res.data
+        data.value= res.data
 
         // data.value= res.data
     }
@@ -84,20 +103,111 @@ const updateGetData = () => {
 }
 
 const saveData = async()=> {
-    console.log(obj);
-    console.log('data' , data.value);
+    // console.log(obj);
+    let body= data.value;
+    console.log('109',body);
+    const res = await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
+    console.log('110',res);
 }
 
- const formatTime = (timeString) => {
-    const date = new Date(timeString);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
-    return `${year}/${month}/${day} ${hours}:${minutes}`;
-};
+// productSpect 新增編輯區
+const addNewProductSpec = () => {
+    newProductSpecList.value.push({
+        weight: '',
+        price: '',
+        inStock: '',
+        onlineStatus: false
+    })
+}
+const addNewProductSpecBtn = async() =>{
+    const id = data.value.productId;
+    console.log('123' , id , newProductSpecList.value);
+    const body = {
+        "productId": data.value.productId,
+        "productSpecList": newProductSpecList.value
+    }
+    const res = await useAxiosPost(`/admin/product/createProductSpec` ,body, obj)
+    newProductSpecList.value=[];
+    getData();
+}
+
+const deleteProductSpec = async(item) => {
+    console.log('139 ' , item._id);
+    const res = await useAxiosDelete(`/admin/product/${item._id}` , obj)
+    getData();
+}
+
+const deleteNewProductSpecList = (index) => {
+    newProductSpecList.value.splice(index, 1)
+}
+
+// productSpect 結束
+
+// imageGallery
+
+const newImageGallery = ref([])
+
+const addNewImageGallery = () => {
+    console.log('149')
+    if(newImageGallery.value.length > 0){
+        alert("一次只能新增一筆");
+        return
+    }
+    newImageGallery.value.push({
+        imgUrl: '',
+        altText: '',
+    })
+}
+
+const uploadImage = async(e,index)=>{
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+
+    let token2 = localStorage.getItem('token')
+    let obj2 = {
+        headers: {
+            Authorization: `Bearer ${token2}`,
+            "Content-Type": 'multipart/form-data'
+        }
+    }
+    
+    console.log('174' , obj2);
+    const res = await useAxiosPost(`/admin/upload/image` ,formData, obj2)
+    console.log('166' , res.data.imgUrl);
+    // newImageGallery.value[index].imgUrl = res.data.imgUrl
+
+
+    data.value.imageGallery.push({
+        imgUrl: res.data.imgUrl,
+        altText: newImageGallery.value.altText,
+    })
+    e.target.value = '';
+    newImageGallery.value = [];
+
+}
+
+//
+
+// AI 產生
+const createAIWord = async() =>{
+ 
+    try{
+        const res = await useAxiosGet(`/admin/openAi?text=${AIInputWord.value}` , obj)
+        AIResultWord.value = res.data
+    }
+    catch(e){
+        if(e?.message){
+            alert(e.message)
+        }
+        alert("系統錯誤")
+    }
+}
+
+// AI結束
+
 
 onMounted(()=>{
     console.log('81' , route.params.id);
@@ -153,6 +263,7 @@ onMounted(()=>{
                             <th scope="col">定價</th>
                             <th scope="col">庫存</th>
                             <th scope="col">上架狀態</th>
+                            <th scope="col">功能</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -163,18 +274,22 @@ onMounted(()=>{
                             <td>上架中</td>
                         </tr> -->
                         <tr v-for="(item,index) in data.productSpecList" :key="index">
+                            <!-- <td>
+                                {{item}}
+                            </td> -->
                             <td>
                                 <!-- {{ item.weight }} -->
-                                <input type="text" class="form-control d-inline" style="width:50%" v-model="data.productSpecList[index].weight" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" >
                                 g</td>
                             <td>NT$
                                 <!-- {{ item.price }} -->
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="data.productSpecList[index].price" name="" id="" >
+
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" >
 
                             </td>
                             <td> 
                                 <!-- {{ item.inStock }} -->
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="data.productSpecList[index].inStock" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" >
                                 件
                             </td>
                             <td> 
@@ -185,8 +300,45 @@ onMounted(()=>{
                                 <!-- <span v-if="item.onlineStatus == true">上架中</span>
                                 <span v-if="item.onlineStatus == false">未上架</span> -->
                             </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger" @click="deleteProductSpec(item)">刪除</button>
+                            </td>
                         </tr>
                     </tbody>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="text-center" @click="addNewProductSpec">+</td>
+                        </tr>
+                    </tbody>
+                    <tbody >
+                        <tr v-for="(item,index) in newProductSpecList" :key="index" >
+                            <td>
+                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" >
+                                g</td>
+                            <td>NT$
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" >
+
+                            </td>
+                            <td> 
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" >
+                                件
+                            </td>
+                            <td class="text-center">
+                                
+                                <label class="col-form-label" >未上架</label>
+                            </td>
+                            <td  > 
+                                <button type="button" class="btn btn-outline-danger" @click="deleteNewProductSpecList(index)">刪除</button>
+                            </td>
+                        </tr>
+                        <tr v-if="newProductSpecList.length>0">
+                            <td colspan="5" class="text-center">
+                                <button type="button" class="btn btn-outline-primary me-2" @click="addNewProductSpecBtn">儲存</button>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                  
                     
                 </table>
             </div>
@@ -195,7 +347,6 @@ onMounted(()=>{
                 <div class="form-label mb-2">其他規格描述</div> 
                 <table class="table ">
                     <tbody>
-                     
                         <tr  v-for="(item,index) in  data.otherInfo" :key="index">
                             <td>
                                 <input type="text" class="form-control" v-model="item.infoName" name="" id="" placeholder="產地">
@@ -204,6 +355,7 @@ onMounted(()=>{
                                 <input type="text" class="form-control" v-model="item.infoValue" name="" id="" placeholder="台灣">
                             </td>
                         </tr>
+                       
                       
                     </tbody>
                 </table>
@@ -217,12 +369,48 @@ onMounted(()=>{
             </div>
             <div class="col-12">
                 <div class="form-label mb-2">商品詳細內容</div> 
-                <textarea v-model="data.description" class="form-control" aria-label="With textarea"></textarea>
+                <textarea v-model="data.description" placeholder="htmlText" class="form-control" style="height: 200px" aria-label="With  textarea"></textarea>
             </div>
-            <!-- <div class="col-12">
+            <div class="col-12">
+                <div class="form-label mb-2">AI 自動生成文案</div> 
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <input type="text" v-model="AIInputWord" class="form-control " placeholder="AI關鍵字" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="col-3">
+                        <button type="button " class="btn btn-primary me-2"  @click.prevent="createAIWord">產生文案</button>
+                    </div>
+                </div>
+
+                <textarea v-model="AIResultWord" class="form-control" style="height: 100px" aria-label="With textarea" readonly></textarea>
+
+            </div>
+            <div class="col-12">
                 <div class="form-label mb-2">商品輪播圖</div> 
-                <img src="" alt="">
-            </div> -->
+             
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col" v-for="(item,index) in data.imageGallery" :key="index">
+                        <div class="card">
+                            <img :src="item.imgUrl" class="card-img-top" alt="...">
+                            <input type="text" v-model="item.altText" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col" v-for="(item,index) in newImageGallery" :key="index">
+                        <div class="card">
+                            <img v-if="item.imgUrl!=''" :src="item.imgUrl" class="card-img-top" alt="...">
+                            <input type="file"  v-if="item.imgUrl==''" @change="event => uploadImage(event,index)" class="form-control">
+                            <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字">
+                        </div>
+                    </div>
+
+                    <div class="col d-flex align-items-center" @click="addNewImageGallery">
+                        +
+                    </div>
+
+                </div>
+                
+                
+            </div>
             <div class="col-12">
                 <button type="button " class="btn btn-primary me-2" @click.prevent="saveData">儲存</button>
                 <button type="button" class="btn btn-outline-primary">返回列表頁</button>
