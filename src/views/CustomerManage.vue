@@ -120,8 +120,15 @@
               <font-awesome-icon
                 class="fa-brands fa-facebook-messenger"
                 :icon="['fab', 'facebook-messenger']"
+                @click="openMessageList(eachCustomer, i)"
               />
-              <div class="red_circle">99+</div>
+              <div
+                class="red_circle"
+                v-show="eachCustomer.unreadCount"
+                @click="openMessageList(eachCustomer, i)"
+              >
+                {{ unreadCountTransform(eachCustomer.unreadCount) }}
+              </div>
             </div>
           </td>
           <td class="body_td">
@@ -203,14 +210,75 @@
     <div class="btn_div">
       <div class="normal btn btn-primary" @click="multiChangeAccountStatus(1)">正常</div>
       <div class="block btn btn-secondary" @click="multiChangeAccountStatus(0)">封鎖</div>
+      <div
+        class="chat_out"
+        :class="{ extend: messageListShowStatus.extend }"
+        v-show="messageListShowStatus.show"
+      >
+        <div class="chat_top">
+          <div class="user_email">{{ messageListEmail }}</div>
+          <div class="btn_space">
+            <font-awesome-icon
+              class="fa-solid fa-minus"
+              v-show="messageListShowStatus.extend"
+              :icon="['fas', 'minus']"
+              @click="messageListExtendChange(false)"
+            />
+            <font-awesome-icon
+              class="fa-solid fa-plus"
+              v-show="!messageListShowStatus.extend"
+              :icon="['fas', 'plus']"
+              @click="messageListExtendChange(true)"
+            />
+            <font-awesome-icon
+              class="fa-solid fa-xmark"
+              @click="messageListShowChange(false)"
+              :icon="['fas', 'xmark']"
+            />
+          </div>
+        </div>
+        <div class="chat_mid" v-show="messageListShowStatus.extend" ref="chatMid">
+          <div
+            class="each_chat client"
+            :class="[
+              { client: eachMessage.role === 'client' },
+              { admin: eachMessage.role === 'admin' }
+            ]"
+            v-for="eachMessage in messageListRef"
+            :key="eachMessage.createdAt"
+            ref="messageListArrayRef"
+          >
+            <div class="chat_box">{{ eachMessage?.message }}</div>
+            <div class="chat_time">{{ formatTime(eachMessage?.createdAt) }}</div>
+          </div>
+          <!-- <div class="each_chat admin">
+            <div class="chat_box">你好</div>
+            <div class="chat_time">2024/6/15 8:50</div>
+          </div> -->
+        </div>
+        <div class="chat_bottom" v-show="messageListShowStatus.extend">
+          <input type="text" class="input_box" v-model="inputMessage" />
+          <font-awesome-icon
+            class="fa-solid fa-paper-plane"
+            :icon="['fas', 'paper-plane']"
+            @click="sendMessage"
+          />
+        </div>
+      </div>
+      <div class="hidden_block" v-show="!messageListShowStatus.show"></div>
       <div class="save btn btn-primary" @click="saveBtnClick">儲存</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { getCustomerList, updateCustomerAccountStatus } from '@/@core/apis/customerManage'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { io } from 'socket.io-client'
+import {
+  getCustomerList,
+  updateCustomerAccountStatus,
+  getMessageList
+} from '@/@core/apis/customerManage'
 import { useRouter } from 'vue-router'
 import TopNavBar from '../components/TopNavBar.vue'
 const router = useRouter()
@@ -225,10 +293,60 @@ const statusMap = new Map([
   [-3, '訂單未成立，未付款']
 ])
 
+const messageListArrayRef = ref([])
+
+const messageListShowStatus = ref({
+  show: false,
+  extend: false
+})
+
+const messageListEmail = ref('')
+const messageListId = ref('')
+const messageListRef = ref([
+  // {
+  //   role: 'client',
+  //   read: true,
+  //   message:
+  //     '安安你好測試文字測試文字測試文字測試文字測試文字測試文字測試文字測試文字測試文字測試文字測試文字',
+  //   chatId: '661a9a9fa892ea2a833a1009',
+  //   createdAt: '2024-06-15T08:50:50.723Z'
+  // },
+  // {
+  //   role: 'admin',
+  //   read: true,
+  //   message: '安安你好',
+  //   chatId: '661a9a9fa892ea2a833a1009',
+  //   createdAt: '2024-06-15T08:50:50.729Z'
+  // },
+  // {
+  //   role: 'admin',
+  //   read: true,
+  //   message: '安安你好',
+  //   chatId: '661a9a9fa892ea2a833a1009',
+  //   createdAt: '2024-06-15T08:50:50.729Z'
+  // },
+  // {
+  //   role: 'client',
+  //   read: true,
+  //   message: '安安你好',
+  //   chatId: '661a9a9fa892ea2a833a1009',
+  //   createdAt: '2024-06-15T08:50:50.729Z'
+  // },
+  // {
+  //   role: 'admin',
+  //   read: true,
+  //   message: '安安你好',
+  //   chatId: '661a9a9fa892ea2a833a1009',
+  //   createdAt: '2024-06-15T08:50:50.729Z'
+  // }
+])
+
+const socket = ref(null)
 const sortChoose = ref('') // 選擇用哪個sort // email accountStatus
 const emailSortNum = ref(1) // email sort num -1:由大到小/1:由小到大
 const accountStatusSortNum = ref(1) // accountStatus sort num -1:由大到小/1:由小到大
-
+const inputMessage = ref('')
+const focusCustomerIndex = ref(0)
 // 點擊查看要顯示的資料
 const checkData = ref()
 const originData = ref([]) // 記錄原本的狀態
@@ -248,14 +366,40 @@ const customerData = ref([
   //   image: '',
   //   accountStatus: 1,
   //   createdAt: '2024-05-11T06:37:23.956Z',
-  //   updatedAt: '2024-06-23T15:03:21.514Z',
+  //   updatedAt: '2024-06-27T14:42:56.865Z',
   //   recipientAddress: {
   //     country: '台灣',
   //     county: '台北市',
   //     district: '信義區',
   //     address: '快樂鎮1234號5樓'
   //   },
-  //   recipientPhone: '0978071727'
+  //   recipientPhone: '0978071727',
+  //   unreadCount: 0
+  // },
+  // {
+  //   recipientName: null,
+  //   recipientPhone: null,
+  //   recipientAddress: {
+  //     country: null,
+  //     county: null,
+  //     district: null,
+  //     address: null
+  //   },
+  //   _id: '665044dc59f8875a5907eaea',
+  //   name: '李小龍',
+  //   phone: null,
+  //   deliveryAddress: {
+  //     country: '台灣',
+  //     county: '新北市',
+  //     district: '板橋區',
+  //     address: '幸福街567號8樓'
+  //   },
+  //   email: 'example@gmail.com',
+  //   customerName: '李小龍',
+  //   image: '',
+  //   accountStatus: 1,
+  //   updatedAt: '2024-06-27T15:19:27.462Z',
+  //   unreadCount: 0
   // }
 ])
 
@@ -278,7 +422,7 @@ const requestSameRef = ref('') // 完全一致 0:false/1:true
 const limitRef = ref('10') // 一頁幾筆
 // 暫時紀錄
 const sameRef = ref(false)
-
+const chatMid = ref(null)
 const tempSearchTextRef = ref('') // 搜尋關鍵字
 const tempRequestSameRef = computed(() => {
   return sameRef.value ? '1' : '0'
@@ -307,6 +451,30 @@ onMounted(async () => {
     pageData.value = res.page
     generatePaginationArr(pageData.value)
   }
+  const token = localStorage.getItem('token')
+  socket.value = io('https://pets-love-nature-backend-n.onrender.com/', {
+    extraHeaders: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+
+  socket.value.on('admin message', (data) => {
+    const focusCustomerData = customerData.value.find(
+      (eachCustomer) => eachCustomer._id === data?.customerId
+    )
+    if (messageListId.value === data?.customerId) {
+      messageListRef.value.push(data)
+      socket.value.emit('read', {
+        customerId: messageListId.value,
+        role: 'admin'
+      })
+      if (!messageListShowStatus.value.show || !messageListShowStatus.value.extend) {
+        if (focusCustomerData) focusCustomerData.unreadCount += 1
+      }
+    } else {
+      if (focusCustomerData) focusCustomerData.unreadCount += 1
+    }
+  })
 })
 
 const allSelected = computed(
@@ -314,6 +482,17 @@ const allSelected = computed(
     customerData.value.filter((eachCustomer) => eachCustomer.checked).length ===
     customerData.value.length
 )
+
+// 調整時間顯示
+const formatTime = (unformatTime) => {
+  if (unformatTime) {
+    const deleteAfterDot = unformatTime.split('.')[0]
+    const deleteT = deleteAfterDot.split('T').join(' ')
+    return deleteT
+  } else {
+    return getFormattedDate()
+  }
+}
 
 // 點擊全選按鈕
 const allSelectedClick = () => {
@@ -329,6 +508,10 @@ const checkedCustomer = (i) => {
 // 轉換customerStatus
 const transformStatus = (num) => {
   return statusMap.get(num)
+}
+
+const unreadCountTransform = (num) => {
+  return num > 99 ? '99+' : num
 }
 
 // 產生分頁數字
@@ -552,11 +735,97 @@ const saveBtnClick = async () => {
 }
 
 // 查看
-
 const checkBtnClick = (data) => {
   const email = data?.email
   sessionStorage.setItem('orderManageEmail', email)
   router.push({ path: '/order-manage' })
+}
+
+const messageListExtendChange = (status) => {
+  messageListShowStatus.value.extend = status
+
+  socket.value.emit('read', {
+    customerId: messageListId.value,
+    role: 'admin'
+  })
+  customerData.value[focusCustomerIndex.value].unreadCount = 0
+}
+
+const messageListShowChange = (status) => {
+  messageListShowStatus.value.show = status
+}
+
+const openMessageList = async (customerData, index) => {
+  focusCustomerIndex.value = index
+  messageListEmail.value = customerData?.email
+  messageListId.value = customerData?._id
+  inputMessage.value = ''
+  const res = await getMessageList(customerData?._id)
+
+  if (res) {
+    messageListRef.value.length = 0
+    if (res.length > 0) messageListRef.value = res[0].messageList
+    setTimeout(() => {
+      chatMid.value?.scrollTo({
+        top: chatMid.value.scrollHeight
+      })
+    }, 10)
+
+    socket.value.emit('read', {
+      customerId: messageListId.value,
+      role: 'admin'
+    })
+    customerData.unreadCount = 0
+  }
+  messageListExtendChange(true)
+  messageListShowChange(true)
+}
+
+const padStartString = (data) => {
+  return String(data).padStart(2, '0')
+}
+
+const getFormattedDate = () => {
+  const date = new Date()
+  const str =
+    date.getFullYear() +
+    '-' +
+    padStartString(date.getMonth() + 1) +
+    '-' +
+    padStartString(date.getDate()) +
+    ' ' +
+    padStartString(date.getHours()) +
+    ':' +
+    padStartString(date.getMinutes()) +
+    ':' +
+    padStartString(date.getSeconds())
+
+  return str
+}
+
+const sendMessage = () => {
+  if (inputMessage.value) {
+    socket.value.emit('message', {
+      customerId: messageListId.value,
+      role: 'admin',
+      message: inputMessage.value
+    })
+    const obj = {
+      role: 'admin',
+      read: false,
+      message: inputMessage.value,
+      createdAt: getFormattedDate()
+    }
+    setTimeout(() => {
+      chatMid.value.scrollTo({
+        top: chatMid.value.scrollHeight,
+        behavior: 'smooth'
+      })
+    }, 100)
+    messageListRef.value.push(obj)
+    // messageListRef.value
+    inputMessage.value = ''
+  }
 }
 </script>
 
@@ -732,6 +1001,116 @@ const checkBtnClick = (data) => {
     }
 
     .save {
+      // margin-left: auto;
+      margin-left: 30px;
+    }
+
+    .chat_out {
+      margin-left: auto;
+      border: 1px solid black;
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+
+      &.extend {
+        height: 700px;
+        .chat_top {
+          border-bottom: 1px solid black;
+        }
+      }
+
+      .chat_top {
+        display: flex;
+        padding: 10px;
+        background-color: white;
+        .user_email {
+          width: 250px;
+          // background-color: yellow;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        .btn_space {
+          display: flex;
+          margin-left: auto;
+
+          .fa-minus,
+          .fa-plus,
+          .fa-xmark {
+            font-size: 20px;
+            cursor: pointer;
+          }
+
+          .fa-minus {
+            // margin-left: auto;
+          }
+
+          .fa-plus {
+            // margin-left: auto;
+          }
+
+          .fa-xmark {
+            margin-left: 10px;
+          }
+        }
+      }
+
+      .chat_mid {
+        // display: none;
+        background-color: #fff;
+        height: 290px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        // background-color: red;
+        .each_chat {
+          max-width: 45%;
+          margin-bottom: 10px;
+          // background-color: red;
+          // padding: 10px;
+          display: flex;
+          flex-direction: column;
+          &.client {
+          }
+          &.admin {
+            margin-left: auto;
+          }
+
+          .chat_box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid black;
+            border-radius: 10px;
+          }
+          .chat_time {
+            margin-left: auto;
+          }
+        }
+      }
+      .chat_bottom {
+        // display: none;
+        background-color: #fff;
+        height: 150px;
+        padding-left: 10px;
+        // background-color: black;
+        .input_box {
+          width: 300px;
+          &:focus {
+            outline: none;
+            padding-left: 10px;
+          }
+        }
+        .fa-paper-plane {
+          font-size: 20px;
+          // padding: 3px;
+          margin-left: 30px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .hidden_block {
       margin-left: auto;
     }
   }

@@ -25,3 +25,9 @@ export const updateCustomerAccountStatus = async (bodyObj) => {
   const res = await useAxiosPatch('/admin/customers', bodyObj, obj)
   return res
 }
+
+export const getMessageList = async (params) => {
+  const obj = getToken()
+  const res = await useAxiosGet(`/chat/getChatHistory/${params}`, obj)
+  return res?.data
+}
