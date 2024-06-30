@@ -182,7 +182,7 @@ onMounted(async()=>{
                         <span v-if="item.onlineStatus == true">上架中</span>
                     </td>
                     <td >
-                        <!-- {{ formatTime(item.updatedAt) }} -->
+                        {{ formatTime(item.updatedAt) }}
                     </td>
                     <td >
                         <!-- <button type="button" class="btn btn-outline-primary me-1">預覽</button> -->
