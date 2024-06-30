@@ -11,6 +11,7 @@ export const useAxiosGet = async (url, config) => {
     })
     .catch((error) => {
       console.log('error', error)
+      throw error
     })
 
   return res
@@ -26,6 +27,7 @@ export const useAxiosPost = async (url, body, config) => {
     })
     .catch((error) => {
       console.log('error', error)
+      throw error
     })
 
   return res
@@ -41,6 +43,7 @@ export const useAxiosPatch = async (url, body, config) => {
     })
     .catch((error) => {
       console.log('error', error)
+      throw error
     })
 
   return res
@@ -56,6 +59,7 @@ export const useAxiosDelete = async (url, config) => {
     })
     .catch((error) => {
       console.log('error', error)
+      throw error
     })
   return res
 }
