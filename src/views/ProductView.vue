@@ -5,61 +5,35 @@ import TopNavBar from '../components/TopNavBar.vue'
 
 import { useAxiosGet , useAxiosPost , useAxiosPatch } from '../@core/apis/axios'
 
-import { useRoute } from 'vue-router';
+import { useRoute , useRouter } from 'vue-router';
 import { useAxiosDelete } from "../@core/apis/axios";
+const router = useRouter();
 const route = useRoute();
+
 let obj;
 const routeId = ref("");
 
 const data = ref( {
-        "title": "鮮嫩雞胸肉凍乾666",
-        "subtitle": "新鮮雞胸肉，符合人食等級，富含高品質蛋白質，提供毛孩維持健康體愛所需的重要營養素",
-        "star": 3.8,
+        "title": "",
+        "subtitle": "",
         "category": [
-            "dry",
-            "fresh",
-            "cat",
-            "dog"
+           
         ],
         "otherInfo": [
             {
-                "infoName": "產地",
-                "infoValue": "台灣"
+                "infoName": "",
+                "infoValue": ""
             }
         ],
         "imageGallery": [
-            {
-                "imgUrl": "https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                "altText": "狗鮮食"
-            }
+            // {
+            //     "imgUrl": "",
+            //     "altText": ""
+            // }
         ],
         "productSpecList": [
-            {
-                "isValid": true,
-                "_id": "664c90d099eb1ab9b3c4f645",
-                "productId": "664c90d099eb1ab9b3c4f643",
-                "weight": 200,
-                "price": 180,
-                "inStock": 90,
-                "onlineStatus": true,
-                "createdAt": "2024-05-21T12:17:20.832Z",
-                "updatedAt": "2024-06-17T15:32:13.032Z",
-                "onlineDate": "2024-06-17T15:32:13.031Z"
-            },
-            {
-                "isValid": true,
-                "_id": "664c90d099eb1ab9b3c4f645",
-                "productId": "664c90d099eb1ab9b3c4f643",
-                "weight": 22,
-                "price": 10,
-                "inStock": 10,
-                "onlineStatus": true,
-                "createdAt": "2024-05-21T12:17:20.832Z",
-                "updatedAt": "2024-06-17T15:32:13.032Z",
-                "onlineDate": "2024-06-17T15:32:13.031Z"
-            }
+          
         ],
-        "productId": "664c90d099eb1ab9b3c4f643"
     },
 );
 
@@ -83,14 +57,12 @@ const getToken = () => {
 
 
 const getData = async()=> {
+    if(routeId.value === 'add'){
+        return
+    }
     try{
         let res = await useAxiosGet(`/admin/product/${routeId.value}` )
-
-       
-        console.log('60' , res);
         data.value= res.data
-
-        // data.value= res.data
     }
     catch(e){
         console.log(e);
@@ -102,12 +74,18 @@ const updateGetData = () => {
     getData()
 }
 
-const saveData = async()=> {
-    // console.log(obj);
+const updateData = async()=> {
     let body= data.value;
-    console.log('109',body);
     const res = await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
-    console.log('110',res);
+}
+const addData = async()=> {
+    data.value.productSpecList = newProductSpecList.value
+    let body= data.value;
+    console.log(body);
+    const res = await useAxiosPost(`/admin/product` ,body, obj)
+    console.log('86' , res);
+    alert("新增成功")
+    goBack();
 }
 
 
@@ -133,7 +111,6 @@ const addNewProductSpecBtn = async() =>{
 }
 
 const deleteProductSpec = async(item) => {
-    console.log('139 ' , item._id);
     const res = await useAxiosDelete(`/admin/product/${item._id}` , obj)
     getData();
 }
@@ -149,7 +126,6 @@ const deleteNewProductSpecList = (index) => {
 const newImageGallery = ref([])
 
 const addNewImageGallery = () => {
-    console.log('149')
     if(newImageGallery.value.length > 0){
         alert("一次只能新增一筆");
         return
@@ -191,6 +167,10 @@ const uploadImage = async(e,index)=>{
 
 //
 
+const goBack = () => {
+    router.push(`/products`);
+}
+
 // AI 產生
 const createAIWord = async() =>{
  
@@ -224,7 +204,9 @@ onMounted(()=>{
       <TopNavBar />
 
     <div class="container">
-        <h2 class="mr-3"> 編輯商品 </h2>
+        <h2 class="mr-3" v-if="routeId !== 'add'"> 編輯商品 </h2>
+        <h2 class="mr-3" v-else> 新增商品 </h2>
+
         <form class="row g-3">
             <div class="col-md-6">
                 <label for="inputEmail4" class="form-label">大標題</label>
@@ -333,7 +315,7 @@ onMounted(()=>{
                         </tr>
                         <tr v-if="newProductSpecList.length>0">
                             <td colspan="5" class="text-center">
-                                <button type="button" class="btn btn-outline-primary me-2" @click="addNewProductSpecBtn">儲存</button>
+                                <button  v-if="routeId !== 'add'" type="button" class="btn btn-outline-primary me-2" @click="addNewProductSpecBtn">儲存</button>
 
                             </td>
                         </tr>
@@ -412,8 +394,10 @@ onMounted(()=>{
                 
             </div>
             <div class="col-12">
-                <button type="button " class="btn btn-primary me-2" @click.prevent="saveData">儲存</button>
-                <button type="button" class="btn btn-outline-primary">返回列表頁</button>
+                <button type="button " v-if="routeId !== 'add'" class="btn btn-primary me-2" @click.prevent="updateData">儲存</button>
+                <button type="button " v-else class="btn btn-primary me-2" @click.prevent="addData">新增商品</button>
+
+                <button type="button" class="btn btn-outline-primary" @click="goBack">返回列表頁</button>
 
             </div>
         </form>

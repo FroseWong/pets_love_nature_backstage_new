@@ -24,6 +24,8 @@ const onlineStatus = ref("");
 
 const data = ref([]);
 
+
+
 // const obj = ref({});
 let obj = {};
 const getToken = () => {
@@ -84,6 +86,10 @@ const updateGetData = () => {
     getData()
 }
 
+const addProduct = (item)=>{
+    router.push(`/product/add`);
+}
+
 const editProduct = (item)=>{
     router.push(`/product/${item._id}`);
 }
@@ -140,7 +146,7 @@ onMounted(async()=>{
             </div>
             <div class="ms-auto">
                 <br>
-                <button type="button" class="btn btn-outline-secondary me-1">新增商品</button>
+                <button type="button" class="btn btn-outline-primary me-1"  @click="addProduct">新增商品</button>
             </div>
         </div>
         <table class="table">
@@ -196,8 +202,8 @@ onMounted(async()=>{
                         {{ formatTime(item.updatedAt) }}
                     </td>
                     <td >
-                        <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1" @click="editProduct(item)">編輯</button>
+                        <!-- <button type="button" class="btn btn-outline-primary me-1">預覽</button> -->
+                        <button type="button" class="btn btn-outline-primary me-1" @click="editProduct(item)">編輯</button>
                         <button type="button" class="btn btn-outline-danger">刪除</button>
                     </td>
                 </tr>
