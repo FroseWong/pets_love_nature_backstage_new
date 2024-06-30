@@ -4,7 +4,6 @@ import { onMounted, ref } from "vue";
 import TopNavBar from '../components/TopNavBar.vue'
 
 import { useAxiosGet } from '../@core/apis/axios'
-import { routeLocationKey } from "vue-router";
 
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -12,7 +11,7 @@ const router = useRouter();
 
 const searchValue = ref({
   searchText: "",
-  sortOrder: "1",
+//   sortOrder: "1",
   sortBy: "",
   sortOrder: -1,
   page: 1,
@@ -73,7 +72,7 @@ const updateGetData = () => {
     getData()
 }
 
-const addProduct = (item)=>{
+const addProduct = ()=>{
     router.push(`/product/add`);
 }
 
@@ -208,7 +207,7 @@ onMounted(async()=>{
                     <a class="page-link" href="#"  @click="changePage(pageInfo.nowPage - 1 )">Previous</a>
                 </li>
                 <!-- pageInfo -->
-                <li v-for="item in pageInfo.totalPages" class="page-item">
+                <li v-for="(item , index) in pageInfo.totalPages" :key="index" class="page-item">
                     <a class="page-link" href="#" @click="changePage(item)">
                         {{ item }}
                     </a>

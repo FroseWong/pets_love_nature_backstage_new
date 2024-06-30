@@ -76,14 +76,15 @@ const updateGetData = () => {
 
 const updateData = async()=> {
     let body= data.value;
-    const res = await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
+    await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
+    alert("編輯成功")
+    getData();
 }
 const addData = async()=> {
     data.value.productSpecList = newProductSpecList.value
     let body= data.value;
     console.log(body);
-    const res = await useAxiosPost(`/admin/product` ,body, obj)
-    console.log('86' , res);
+    await useAxiosPost(`/admin/product` ,body, obj)
     alert("新增成功")
     goBack();
 }
@@ -100,18 +101,18 @@ const addNewProductSpec = () => {
 }
 const addNewProductSpecBtn = async() =>{
     const id = data.value.productId;
-    console.log('123' , id , newProductSpecList.value);
+    console.log( id , newProductSpecList.value);
     const body = {
         "productId": data.value.productId,
         "productSpecList": newProductSpecList.value
     }
-    const res = await useAxiosPost(`/admin/product/createProductSpec` ,body, obj)
+    await useAxiosPost(`/admin/product/createProductSpec` ,body, obj)
     newProductSpecList.value=[];
     getData();
 }
 
 const deleteProductSpec = async(item) => {
-    const res = await useAxiosDelete(`/admin/product/${item._id}` , obj)
+    await useAxiosDelete(`/admin/product/${item._id}` , obj)
     getData();
 }
 
@@ -136,7 +137,7 @@ const addNewImageGallery = () => {
     })
 }
 
-const uploadImage = async(e,index)=>{
+const uploadImage = async(e)=>{
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
