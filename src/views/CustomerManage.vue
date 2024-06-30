@@ -257,7 +257,12 @@
           </div> -->
         </div>
         <div class="chat_bottom" v-show="messageListShowStatus.extend">
-          <input type="text" class="input_box" v-model="inputMessage" />
+          <input
+            type="text"
+            class="input_box"
+            v-model="inputMessage"
+            v-on:keyup.enter="sendMessage"
+          />
           <font-awesome-icon
             class="fa-solid fa-paper-plane"
             :icon="['fas', 'paper-plane']"
