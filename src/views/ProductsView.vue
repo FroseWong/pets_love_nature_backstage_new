@@ -23,7 +23,7 @@ const searchValue = ref({
 const onlineStatus = ref("");
 
 const data = ref([]);
-
+const pageInfo = ref({});
 
 
 // const obj = ref({});
@@ -57,24 +57,11 @@ const getData = async()=> {
 
     try{
         let res = await useAxiosGet(`/admin/product?${queryString}` )
-        // let res = await useAxiosGet(`/admin/product/getFilterProductList?${queryString}` )
-        
-        // const response = await fetch(
-        // `https://pets-love-nature-backend-n.onrender.com/api/v1/product/getFilterProductList?${queryString}`,
-
-        // {
-        //     method: "GET",
-        // }
-
-        // );
-
-        // const res = await response.json();
-
+       
         console.log('storelist ' , res);
         console.log('storelist ' , res.data.content);
         data.value= res.data.content
-
-        // data.value= res.data
+        pageInfo.value = res.data.page
     }
     catch(e){
         console.log(e);
@@ -92,6 +79,12 @@ const addProduct = (item)=>{
 
 const editProduct = (item)=>{
     router.push(`/product/${item._id}`);
+}
+
+const changePage = (page)=>{
+    console.log('85page' , page)
+    searchValue.value.page = page
+    getData()
 }
 
  const formatTime = (timeString) => {
@@ -152,7 +145,6 @@ onMounted(async()=>{
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">商品編號</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">重量規格</th>
                     <th scope="col">商品分類</th>
@@ -178,7 +170,6 @@ onMounted(async()=>{
                     </td>
                 </tr> -->
                 <tr v-for="(item, index) in data" :key="index">
-                    <th scope="row">{{ item.productNumber }}</th>
                     <!-- <td >{{ item.productId.title }}</td> -->
                     <td >{{ item.product.title }}</td>
 
@@ -209,7 +200,27 @@ onMounted(async()=>{
                 </tr>
                
             </tbody>
-            </table>
+        </table>
+        <div class="footer d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" v-if="pageInfo.nowPage !== 1 && pageInfo.totalPages !== 1">
+                    <a class="page-link" href="#"  @click="changePage(pageInfo.nowPage - 1 )">Previous</a>
+                </li>
+                <!-- pageInfo -->
+                <li v-for="item in pageInfo.totalPages" class="page-item">
+                    <a class="page-link" href="#" @click="changePage(item)">
+                        {{ item }}
+                    </a>
+                </li>
+                <li class="page-item" v-if="pageInfo.nowPage !== pageInfo.totalPages && pageInfo.totalPages !== 1">
+                    <a class="page-link" href="#" @click="changePage(pageInfo.nowPage +1)">
+                        Next
+                    </a>
+                </li>
+            </ul>
+            </nav>
+        </div>
     </div>
 </template>
 
