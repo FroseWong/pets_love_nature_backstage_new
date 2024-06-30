@@ -3,8 +3,7 @@ import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
 
-import { useAxiosGet } from '../@core/apis/axios'
-import { routeLocationKey } from "vue-router";
+import { useAxiosDelete, useAxiosGet } from '../@core/apis/axios'
 
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -12,7 +11,7 @@ const router = useRouter();
 
 const searchValue = ref({
   searchText: "",
-  sortOrder: "1",
+//   sortOrder: "1",
   sortBy: "",
   sortOrder: -1,
   page: 1,
@@ -23,6 +22,8 @@ const searchValue = ref({
 const onlineStatus = ref("");
 
 const data = ref([]);
+const pageInfo = ref({});
+
 
 // const obj = ref({});
 let obj = {};
@@ -38,9 +39,7 @@ const getToken = () => {
 
 
 const getData = async()=> {
-    console.log('36' ,searchValue.value);
 
-    console.log('120' , obj);
     let params ={};
 
     params = {
@@ -55,24 +54,10 @@ const getData = async()=> {
 
     try{
         let res = await useAxiosGet(`/admin/product?${queryString}` )
-        // let res = await useAxiosGet(`/admin/product/getFilterProductList?${queryString}` )
-        
-        // const response = await fetch(
-        // `https://pets-love-nature-backend-n.onrender.com/api/v1/product/getFilterProductList?${queryString}`,
-
-        // {
-        //     method: "GET",
-        // }
-
-        // );
-
-        // const res = await response.json();
-
+       
         console.log('storelist ' , res);
-        console.log('storelist ' , res.data.content);
         data.value= res.data.content
-
-        // data.value= res.data
+        pageInfo.value = res.data.page
     }
     catch(e){
         console.log(e);
@@ -84,8 +69,23 @@ const updateGetData = () => {
     getData()
 }
 
+const addProduct = ()=>{
+    router.push(`/product/add`);
+}
+
 const editProduct = (item)=>{
     router.push(`/product/${item._id}`);
+}
+
+const deleteProduct = async(item)=>{
+    console.log(item);
+    // let res = await useAxiosDelete(`/admin/product/${item._id}` )
+    // console.log(res);
+}
+
+const changePage = (page)=>{
+    searchValue.value.page = page
+    getData()
 }
 
  const formatTime = (timeString) => {
@@ -140,13 +140,12 @@ onMounted(async()=>{
             </div>
             <div class="ms-auto">
                 <br>
-                <button type="button" class="btn btn-outline-secondary me-1">新增商品</button>
+                <button type="button" class="btn btn-outline-primary me-1"  @click="addProduct">新增商品</button>
             </div>
         </div>
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">商品編號</th>
                     <th scope="col">商品名稱</th>
                     <th scope="col">重量規格</th>
                     <th scope="col">商品分類</th>
@@ -157,30 +156,13 @@ onMounted(async()=>{
                 </tr>
             </thead>
             <tbody>
-                <!-- <tr>
-                    <th scope="row">D-001</th>
-                    <td>鮮嫩雞胸肉凍乾 (前端測試資料)</td>
-                    <td>100g</td>
-                    <td>狗狗 鮮食</td>
-                    <td>3</td>
-                    <td>上架中</td>
-                    <td>2024/01/01 08:00</td>
-                    <td>
-                        <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1">編輯</button>
-                        <button type="button" class="btn btn-outline-danger">刪除</button>
-                    </td>
-                </tr> -->
                 <tr v-for="(item, index) in data" :key="index">
-                    <th scope="row">{{ item.productNumber }}</th>
                     <!-- <td >{{ item.productId.title }}</td> -->
                     <td >{{ item.product.title }}</td>
 
                     <td >{{ item.weight }}g</td>
                     <td >
                         <span v-for="(item,index) in item.product.category" :key="index">
-
-                        <!-- <span v-for="(item,index) in item.productId.category" :key="index"> -->
                             <span  v-if="item == 'fresh'" class="ms-1">鮮食</span>
                             <span  v-if="item == 'dog'" class="ms-1">狗食</span>
                             <span  v-if="item == 'cat'" class="ms-1">貓食</span>
@@ -196,14 +178,34 @@ onMounted(async()=>{
                         {{ formatTime(item.updatedAt) }}
                     </td>
                     <td >
-                        <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1" @click="editProduct(item)">編輯</button>
-                        <button type="button" class="btn btn-outline-danger">刪除</button>
+                        <!-- <button type="button" class="btn btn-outline-primary me-1">預覽</button> -->
+                        <button type="button" class="btn btn-outline-primary me-1" @click="editProduct(item)">編輯</button>
+                        <button type="button" class="btn btn-outline-danger" @click="deleteProduct(item)">刪除</button>
                     </td>
                 </tr>
                
             </tbody>
-            </table>
+        </table>
+        <div class="footer d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" v-if="pageInfo.nowPage !== 1 && pageInfo.totalPages !== 1">
+                    <a class="page-link" href="#"  @click="changePage(pageInfo.nowPage - 1 )">Previous</a>
+                </li>
+                <!-- pageInfo -->
+                <li v-for="(item , index) in pageInfo.totalPages" :key="index" class="page-item">
+                    <a class="page-link" href="#" @click="changePage(item)">
+                        {{ item }}
+                    </a>
+                </li>
+                <li class="page-item" v-if="pageInfo.nowPage !== pageInfo.totalPages && pageInfo.totalPages !== 1">
+                    <a class="page-link" href="#" @click="changePage(pageInfo.nowPage +1)">
+                        Next
+                    </a>
+                </li>
+            </ul>
+            </nav>
+        </div>
     </div>
 </template>
 
