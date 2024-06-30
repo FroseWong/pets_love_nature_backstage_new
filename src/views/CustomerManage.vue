@@ -32,7 +32,12 @@
           </div>
         </div>
         <div class="right_bottom">
-          <input class="search_input" type="text" v-model="tempSearchTextRef" />
+          <input
+            class="search_input"
+            type="text"
+            v-model="tempSearchTextRef"
+            placeholder="請輸入email"
+          />
           <button @click="searchBtnClick">搜尋</button>
         </div>
       </div>
@@ -279,6 +284,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { io } from 'socket.io-client'
+import dayjs from 'dayjs'
 import {
   getCustomerList,
   updateCustomerAccountStatus,
@@ -491,9 +497,9 @@ const allSelected = computed(
 // 調整時間顯示
 const formatTime = (unformatTime) => {
   if (unformatTime) {
-    const deleteAfterDot = unformatTime.split('.')[0]
-    const deleteT = deleteAfterDot.split('T').join(' ')
-    return deleteT
+    // const deleteAfterDot = unformatTime.split('.')[0]
+    // const deleteT = deleteAfterDot.split('T').join(' ')
+    return dayjs(unformatTime).format('YYYY-MM-DD HH:mm:ss')
   } else {
     return getFormattedDate()
   }
