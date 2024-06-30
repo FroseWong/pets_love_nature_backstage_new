@@ -3,7 +3,7 @@ import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
 
-import { useAxiosGet } from '../@core/apis/axios'
+import { useAxiosDelete, useAxiosGet } from '../@core/apis/axios'
 
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -39,9 +39,7 @@ const getToken = () => {
 
 
 const getData = async()=> {
-    console.log('36' ,searchValue.value);
 
-    console.log('120' , obj);
     let params ={};
 
     params = {
@@ -58,7 +56,6 @@ const getData = async()=> {
         let res = await useAxiosGet(`/admin/product?${queryString}` )
        
         console.log('storelist ' , res);
-        console.log('storelist ' , res.data.content);
         data.value= res.data.content
         pageInfo.value = res.data.page
     }
@@ -80,8 +77,13 @@ const editProduct = (item)=>{
     router.push(`/product/${item._id}`);
 }
 
+const deleteProduct = async(item)=>{
+    console.log(item);
+    // let res = await useAxiosDelete(`/admin/product/${item._id}` )
+    // console.log(res);
+}
+
 const changePage = (page)=>{
-    console.log('85page' , page)
     searchValue.value.page = page
     getData()
 }
@@ -154,20 +156,6 @@ onMounted(async()=>{
                 </tr>
             </thead>
             <tbody>
-                <!-- <tr>
-                    <th scope="row">D-001</th>
-                    <td>鮮嫩雞胸肉凍乾 (前端測試資料)</td>
-                    <td>100g</td>
-                    <td>狗狗 鮮食</td>
-                    <td>3</td>
-                    <td>上架中</td>
-                    <td>2024/01/01 08:00</td>
-                    <td>
-                        <button type="button" class="btn btn-outline-primary me-1">預覽</button>
-                        <button type="button" class="btn btn-outline-secondary me-1">編輯</button>
-                        <button type="button" class="btn btn-outline-danger">刪除</button>
-                    </td>
-                </tr> -->
                 <tr v-for="(item, index) in data" :key="index">
                     <!-- <td >{{ item.productId.title }}</td> -->
                     <td >{{ item.product.title }}</td>
@@ -175,8 +163,6 @@ onMounted(async()=>{
                     <td >{{ item.weight }}g</td>
                     <td >
                         <span v-for="(item,index) in item.product.category" :key="index">
-
-                        <!-- <span v-for="(item,index) in item.productId.category" :key="index"> -->
                             <span  v-if="item == 'fresh'" class="ms-1">鮮食</span>
                             <span  v-if="item == 'dog'" class="ms-1">狗食</span>
                             <span  v-if="item == 'cat'" class="ms-1">貓食</span>
@@ -194,7 +180,7 @@ onMounted(async()=>{
                     <td >
                         <!-- <button type="button" class="btn btn-outline-primary me-1">預覽</button> -->
                         <button type="button" class="btn btn-outline-primary me-1" @click="editProduct(item)">編輯</button>
-                        <button type="button" class="btn btn-outline-danger">刪除</button>
+                        <button type="button" class="btn btn-outline-danger" @click="deleteProduct(item)">刪除</button>
                     </td>
                 </tr>
                

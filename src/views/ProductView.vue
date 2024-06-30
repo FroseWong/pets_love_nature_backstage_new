@@ -83,7 +83,6 @@ const updateData = async()=> {
 const addData = async()=> {
     data.value.productSpecList = newProductSpecList.value
     let body= data.value;
-    console.log(body);
     await useAxiosPost(`/admin/product` ,body, obj)
     alert("新增成功")
     goBack();
@@ -101,7 +100,6 @@ const addNewProductSpec = () => {
 }
 const addNewProductSpecBtn = async() =>{
     const id = data.value.productId;
-    console.log( id , newProductSpecList.value);
     const body = {
         "productId": data.value.productId,
         "productSpecList": newProductSpecList.value
@@ -151,9 +149,7 @@ const uploadImage = async(e)=>{
         }
     }
     
-    console.log('174' , obj2);
     const res = await useAxiosPost(`/admin/upload/image` ,formData, obj2)
-    console.log('166' , res.data.imgUrl);
     // newImageGallery.value[index].imgUrl = res.data.imgUrl
 
 
@@ -191,7 +187,6 @@ const createAIWord = async() =>{
 
 
 onMounted(()=>{
-    console.log('81' , route.params.id);
 
     routeId.value = route.params.id
     getToken();
