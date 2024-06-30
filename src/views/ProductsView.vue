@@ -78,9 +78,17 @@ const editProduct = (item)=>{
 }
 
 const deleteProduct = async(item)=>{
-    console.log(item);
-    // let res = await useAxiosDelete(`/admin/product/${item._id}` )
-    // console.log(res);
+    console.log('81' , item);
+    try{
+        let res = await useAxiosDelete(`/admin/product/${item._id}` , obj )
+        console.log(res);
+        alert('刪除成功');
+        getData();
+    }
+    catch(e){
+        console.log(e);
+        alert(e.response.data.message);
+    }
 }
 
 const changePage = (page)=>{
@@ -126,8 +134,8 @@ onMounted(async()=>{
                 上架狀態<br>
                 <select v-model="onlineStatus"  class="form-select" aria-label="Default select example" @change="updateGetData">
                     <option selected value="">全部</option>
-                    <option value=true>上架中</option>
-                    <option value=false>未上架</option>
+                    <option value=true >上架中</option>
+                    <option value=false >未上架</option>
                 </select>
             </div>
             <div class="me-2">
@@ -158,8 +166,7 @@ onMounted(async()=>{
             <tbody>
                 <tr v-for="(item, index) in data" :key="index">
                     <!-- <td >{{ item.productId.title }}</td> -->
-                    <td >{{ item.product.title }}</td>
-
+                    <td  >{{ item.product.title }}</td>
                     <td >{{ item.weight }}g</td>
                     <td >
                         <span v-for="(item,index) in item.product.category" :key="index">
@@ -175,7 +182,7 @@ onMounted(async()=>{
                         <span v-if="item.onlineStatus == true">上架中</span>
                     </td>
                     <td >
-                        {{ formatTime(item.updatedAt) }}
+                        <!-- {{ formatTime(item.updatedAt) }} -->
                     </td>
                     <td >
                         <!-- <button type="button" class="btn btn-outline-primary me-1">預覽</button> -->

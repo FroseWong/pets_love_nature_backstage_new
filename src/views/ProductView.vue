@@ -76,16 +76,39 @@ const updateGetData = () => {
 
 const updateData = async()=> {
     let body= data.value;
+    body.productSpecList.forEach((item)=>{
+        item.id=item._id
+    })
+    console.log('82', body);
+
     await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
     alert("編輯成功")
     getData();
 }
 const addData = async()=> {
-    data.value.productSpecList = newProductSpecList.value
+    console.log('83' , data.value.productSpecList.length);
+
+    if(data?.value?.otherInfo[0].infoName =="" || data?.value?.otherInfo[0].infoValue ==""){
+        alert("請輸入其他規格描述")
+        return
+    }
+    data.value.productSpecList = [...data.value.productSpecList, ...newProductSpecList.value]
+    newProductSpecList.value=[]
+
+    if(data.value.productSpecList.length == 0){
+        alert("請輸入產品規格")
+        return
+    }
     let body= data.value;
-    await useAxiosPost(`/admin/product` ,body, obj)
-    alert("新增成功")
-    goBack();
+    try{
+        let res = await useAxiosPost(`/admin/product` ,body, obj)
+        alert("新增成功")
+        goBack();
+    }   
+    catch(e){
+        console.log('92' , e);
+        alert(e.response.data.message);
+    }
 }
 
 
@@ -110,8 +133,15 @@ const addNewProductSpecBtn = async() =>{
 }
 
 const deleteProductSpec = async(item) => {
-    await useAxiosDelete(`/admin/product/${item._id}` , obj)
-    getData();
+    try{
+        await useAxiosDelete(`/admin/product/${item._id}` , obj)
+        alert("刪除成功");
+        getData();
+    }
+    catch(e){
+        alert("刪除失敗");
+
+    }
 }
 
 const deleteNewProductSpecList = (index) => {
@@ -271,9 +301,9 @@ onMounted(()=>{
                                 件
                             </td>
                             <td> 
-                                <select  v-model="data.productSpecList[index].onlineStatus" class="form-select" aria-label="Default select example" @change="updateGetData">
-                                    <option value="true">上架中</option>
-                                    <option value="false">未上架</option>
+                                <select  v-model="item.onlineStatus" class="form-select" aria-label="Default select example" >
+                                    <option :value=true >上架中</option>
+                                    <option :value=false >未上架</option>
                                 </select>
                                 <!-- <span v-if="item.onlineStatus == true">上架中</span>
                                 <span v-if="item.onlineStatus == false">未上架</span> -->
