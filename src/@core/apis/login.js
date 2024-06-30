@@ -15,10 +15,6 @@ export const login = async (data) => {
     localStorage.setItem('token', res?.data?.token)
     router.push({ path: '/products' })
   } else {
-    // 登入失敗
-    // const obj = {
-    //     mess
-    // }
+    alert('登入失敗，請確認帳號密碼')
   }
-  //   return res
 }
