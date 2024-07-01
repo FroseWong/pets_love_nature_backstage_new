@@ -43,7 +43,13 @@
                 <div class="each_content">
                   <div class="btn_space">
                     <div class="btn normal" @click="changeStep('normal')">正常next step</div>
-                    <!-- <div class="btn return" @click="changeStep('return')">退貨next step</div> -->
+                    <div
+                      class="btn return"
+                      v-show="operateData.orderStatus <= -1"
+                      @click="changeStep('return')"
+                    >
+                      退貨next step
+                    </div>
                   </div>
                 </div>
               </div>
