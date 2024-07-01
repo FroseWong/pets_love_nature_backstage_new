@@ -4,8 +4,20 @@
       <img class="login_img" src="@/assets/img/5cats.jpeg" alt="" />
 
       <h2 class="login_title">登入</h2>
-      <input class="login_input" v-model="account" type="text" placeholder="請輸入帳號或Email" />
-      <input class="login_input" v-model="password" type="password" placeholder="請輸入密碼" />
+      <input
+        class="login_input"
+        v-on:keyup.enter="loginBtnClick"
+        v-model="account"
+        type="text"
+        placeholder="請輸入帳號或Email"
+      />
+      <input
+        class="login_input"
+        v-on:keyup.enter="loginBtnClick"
+        v-model="password"
+        type="password"
+        placeholder="請輸入密碼"
+      />
 
       <div class="login_btn" @click="loginBtnClick">登入</div>
     </div>

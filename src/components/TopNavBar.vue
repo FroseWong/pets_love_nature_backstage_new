@@ -22,7 +22,7 @@
       >
         消費者管理
       </div>
-      <div class="each_nav_bar">庫存管理</div>
+      <!-- <div class="each_nav_bar">庫存管理</div> -->
       <div class="each_nav_bar">
         網站管理
         <div class="hover_drop_list">
@@ -107,6 +107,11 @@ const navBtnClick = (path) => {
           justify-content: center;
           display: none;
           cursor: pointer;
+
+          &:hover {
+            background-color: rgba(26, 54, 112, 0.669);
+            color: white;
+          }
         }
       }
     }
