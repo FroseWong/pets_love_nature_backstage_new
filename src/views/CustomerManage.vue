@@ -35,7 +35,7 @@
           <input
             class="search_input"
             type="text"
-            v-model="tempSearchTextRef"
+            v-model.trim="tempSearchTextRef"
             placeholder="請輸入email"
           />
           <button @click="searchBtnClick">搜尋</button>

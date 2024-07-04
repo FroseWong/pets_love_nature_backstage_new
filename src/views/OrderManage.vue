@@ -197,7 +197,7 @@
           </div>
         </div>
         <div class="right_bottom">
-          <input class="search_input" type="text" v-model="tempSearchTextRef" />
+          <input class="search_input" type="text" v-model.trim="tempSearchTextRef" />
           <button @click="searchBtnClick">搜尋</button>
         </div>
       </div>
@@ -209,17 +209,36 @@
           <th class="head_th">訂單編號</th>
           <th class="head_th">email</th>
           <th class="head_th">
-            <div class="pointer_div pointer" @click="filterStatusChange">
+            <div class="pointer_div pointer" @click="sortClick('createdAt')">
+              <span class="text">建單時間</span>
+              <font-awesome-icon
+                class="fa-solid fa-arrow-up"
+                v-show="createdAtSortNum === 1"
+                :icon="['fas', 'arrow-up']"
+                :class="{ red_text: sortChoose === 'createdAt' }"
+              />
+              <font-awesome-icon
+                v-show="createdAtSortNum === 0"
+                class="fa-solid fa-arrow-down"
+                :icon="['fas', 'arrow-down']"
+                :class="{ red_text: sortChoose === 'createdAt' }"
+              />
+            </div>
+          </th>
+          <th class="head_th">
+            <div class="pointer_div pointer" @click="sortClick('orderStatus')">
               <span class="text">商品狀態</span>
               <font-awesome-icon
                 class="fa-solid fa-arrow-up"
-                v-show="filterStatusRef === 1"
+                v-show="orderStatusSortNum === 1"
                 :icon="['fas', 'arrow-up']"
+                :class="{ red_text: sortChoose === 'orderStatus' }"
               />
               <font-awesome-icon
-                v-show="filterStatusRef === 0"
+                v-show="orderStatusSortNum === 0"
                 class="fa-solid fa-arrow-down"
                 :icon="['fas', 'arrow-down']"
+                :class="{ red_text: sortChoose === 'orderStatus' }"
               />
             </div>
           </th>
@@ -235,6 +254,8 @@
             </div>
           </th>
           <td class="body_td">{{ eachOrder.email }}</td>
+          <td class="body_td">{{ dayjs(eachOrder.createdAt).format('YYYY-MM-DD HH:mm:ss') }}</td>
+
           <td class="body_td">{{ transformStatus(eachOrder.orderStatus) }}</td>
           <td class="body_td">
             <div
@@ -304,6 +325,8 @@
 import { computed, onMounted, ref } from 'vue'
 import TopNavBar from '../components/TopNavBar.vue'
 import { getOrder, updateOrder, getOrderList } from '@/@core/apis/orderManage'
+import dayjs from 'dayjs'
+
 const statusMap = new Map([
   [1, '訂單成立，處理中'],
   [2, '已出貨，運送中'],
@@ -403,6 +426,10 @@ const searchTextRef = ref('') // 搜尋關鍵字
 const requestSameRef = ref('') // 完全一致 0:false/1:true
 const searchTypeRef = ref('') // 文字搜尋種類 email,orderNum
 const limitRef = ref('10') // 一頁幾筆
+const orderStatusSortNum = ref(1) // 物流排序箭頭
+const createdAtSortNum = ref(1) // 物流排序箭頭
+const sortChoose = ref('') // 選擇用哪個sort // orderStatus createdAt
+
 // 暫時紀錄
 const sameRef = ref(false)
 
@@ -421,13 +448,13 @@ onMounted(async () => {
     const obj = {
       page: '1', // 頁數
       limit: '10',
-      filterStatus: 1, // 物流排序 1:小到大 / 0:大到小
+      filterStatus: 0, // 物流排序 1:小到大 / 0:大到小
       searchText: email, // 搜尋關鍵字
       requestSame: 1, // 完全一致 0:false/1:true
-      searchType: 'email' // 文字搜尋種類 email,orderNum
+      searchType: 'email', // 文字搜尋種類 email,orderNum
+      sortOrder: 'createdAt'
     }
     const res = await getOrder(obj)
-    console.log('orderRes', res)
     if (res) {
       orderData.value = res.OrderData
       pageData.value = res.page
@@ -441,13 +468,13 @@ onMounted(async () => {
     const obj = {
       page: '1', // 頁數
       limit: '10',
-      filterStatus: 1, // 物流排序 1:小到大 / 0:大到小
+      filterStatus: 0, // 物流排序 1:小到大 / 0:大到小
       searchText: '', // 搜尋關鍵字
       requestSame: '', // 完全一致 0:false/1:true
-      searchType: '' // 文字搜尋種類 email,orderNum
+      searchType: '', // 文字搜尋種類 email,orderNum
+      sortOrder: 'createdAt'
     }
     const res = await getOrder(obj)
-    console.log('orderRes', res)
     if (res) {
       orderData.value = res.OrderData
       pageData.value = res.page
@@ -490,13 +517,17 @@ const generatePaginationArr = () => {
 // 搜尋功能
 const search = async (btnclick = false) => {
   if (!searchTextRef.value || !searchTypeRef.value) requestSameRef.value = ''
+  let filterStatusNum
+  if (sortChoose.value === 'orderStatus') filterStatusNum = orderStatusSortNum.value
+  else if (sortChoose.value === 'createdAt') filterStatusNum = createdAtSortNum.value
   const obj = {
     page: pageRef.value, // 頁數
-    filterStatus: filterStatusRef.value, // 物流排序 1:小到大 / 0:大到小
+    filterStatus: filterStatusNum, // 物流排序 1:小到大 / 0:大到小
     limit: limitRef.value,
     searchText: searchTextRef.value, // 搜尋關鍵字
     requestSame: requestSameRef.value, // 完全一致 0:false/1:true
-    searchType: searchTypeRef.value // 文字搜尋種類 email,orderNum
+    searchType: searchTypeRef.value, // 文字搜尋種類 email,orderNum
+    sortOrder: sortChoose.value //篩選選項
   }
 
   const res = await getOrder(obj)
@@ -583,20 +614,40 @@ const filterStatusChange = async () => {
   await search()
 }
 
+const sortClick = async (str) => {
+  if (!sortChoose.value) {
+    // 如果原本甚麼都沒選
+    sortChoose.value = str
+  } else {
+    // 如果原本已經有選擇
+
+    // 如果是點擊原本已經選擇的
+    if (sortChoose.value === str) {
+      if (str === 'orderStatus') {
+        orderStatusSortNum.value = orderStatusSortNum.value === 1 ? 0 : 1
+      } else if (str === 'createdAt') {
+        createdAtSortNum.value = createdAtSortNum.value === 1 ? 0 : 1
+      }
+    } else {
+      // 點擊不是原本選擇的
+      orderStatusSortNum.value = 1
+      createdAtSortNum.value = 1
+      sortChoose.value = str
+    }
+  }
+  await search()
+}
+
 // 點擊齒輪
 const operateBtnClick = (orderData, index) => {
-  console.log('orderData', orderData)
   operateData.value = orderData
   operateIndex.value = index
-  console.log('operateData', operateData.value)
 }
 
 const checkBtnClick = async (orderData, index) => {
-  console.log()
   if (orderData?._id) {
     checkData.value.orderProductList.length = 0
     const orderListData = await getOrderList(orderData?._id)
-    console.log('orderListData', orderListData)
     checkData.value.orderData = orderData
     checkData.value.orderIndex = index
     checkData.value.orderProductList = orderListData[0].orderProductList
@@ -606,8 +657,6 @@ const checkBtnClick = async (orderData, index) => {
 // 取得step arr 文字
 const getStepStrArr = (num) => {
   stepStringArr.value.length = 0
-  console.log('num', num)
-  console.log(typeof num)
 
   let focusIndex
   if (num === -3 || num > 0) {
@@ -627,7 +676,6 @@ const getStepStrArr = (num) => {
 
 // 更改step
 const changeStep = async (str) => {
-  console.log('operateData', operateData.value)
   if (str === 'normal') {
     // 正常流程
 
@@ -665,7 +713,6 @@ const changeStep = async (str) => {
 
     if (returnIndex === -1) {
       // 剛走退貨流程
-      console.log('剛走退貨流程')
       const nextStatus = returnStepArr.value[0]
       const orderId = operateData.value._id
       const obj = {
@@ -702,6 +749,10 @@ const changeStep = async (str) => {
 .order_manage {
   .pointer {
     cursor: pointer;
+  }
+
+  .red_text {
+    color: red;
   }
   .top_div {
     width: 90%;
