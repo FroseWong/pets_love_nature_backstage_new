@@ -244,7 +244,7 @@
         </div>
         <div class="chat_mid" v-show="messageListShowStatus.extend" ref="chatMid">
           <div
-            class="each_chat client"
+            class="each_chat"
             :class="[
               { client: eachMessage.role === 'client' },
               { admin: eachMessage.role === 'admin' }
@@ -255,6 +255,11 @@
           >
             <div class="chat_box">{{ eachMessage?.message }}</div>
             <div class="chat_time">{{ formatTime(eachMessage?.createdAt) }}</div>
+            <font-awesome-icon
+              class="fa-solid fa-circle-check"
+              v-show="eachMessage?.read"
+              :icon="['fas', 'circle-check']"
+            />
           </div>
           <!-- <div class="each_chat admin">
             <div class="chat_box">你好</div>
@@ -484,6 +489,16 @@ onMounted(async () => {
       }
     } else {
       if (focusCustomerData) focusCustomerData.unreadCount += 1
+    }
+  })
+
+  socket.value.on('admin read', (data) => {
+    if (messageListId.value === data?.customerId) {
+      messageListRef.value.forEach((eachMessage) => {
+        if (eachMessage.role === 'admin') {
+          eachMessage.read = true
+        }
+      })
     }
   })
 })
@@ -1082,7 +1097,18 @@ const sendMessage = () => {
           // padding: 10px;
           display: flex;
           flex-direction: column;
+          word-break: break-all;
+          position: relative;
+          .fa-circle-check {
+            color: rgb(18, 192, 18);
+            position: absolute;
+            bottom: 4px;
+            left: -20px;
+          }
           &.client {
+            .fa-circle-check {
+              display: none;
+            }
           }
           &.admin {
             margin-left: auto;
