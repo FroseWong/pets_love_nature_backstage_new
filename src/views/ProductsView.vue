@@ -104,8 +104,8 @@ const changePage = (page)=>{
     const day = String(date.getUTCDate()).padStart(2, '0');
     const hours = String(date.getUTCHours()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-    return `${year}/${month}/${day} ${hours}:${minutes}`;
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 onMounted(async()=>{
@@ -120,8 +120,8 @@ onMounted(async()=>{
       <TopNavBar routeStr="products" />
 
     <div class="container">
-        <h2 class="mr-3">商品列表</h2>
-        <div class="search d-flex">
+        <h2 class="mr-3 my-5">商品列表</h2>
+        <div class="search d-flex mb-2">
             <div class="me-2 ">
                 分類 <br>
                 <select  v-model="searchValue.filterCategory" class="form-select" aria-label="Default select example" @change="updateGetData">
@@ -152,7 +152,7 @@ onMounted(async()=>{
                 <button type="button" class="btn btn-outline-primary me-1"  @click="addProduct">新增商品</button>
             </div>
         </div>
-        <table class="table">
+        <table class="table mb-4">
             <thead>
                 <tr>
                     <th scope="col">商品名稱</th>
@@ -201,7 +201,9 @@ onMounted(async()=>{
                     <a class="page-link" href="#"  @click="changePage(pageInfo.nowPage - 1 )">Previous</a>
                 </li>
                 <!-- pageInfo -->
-                <li v-for="(item , index) in pageInfo.totalPages" :key="index" class="page-item">
+                <li v-for="(item , index) in pageInfo.totalPages" :key="index" class="page-item"
+                :class="{  'active': item === pageInfo.nowPage }"
+>
                     <a class="page-link" href="#" @click="changePage(item)">
                         {{ item }}
                     </a>
