@@ -9,7 +9,7 @@ import { useRoute , useRouter } from 'vue-router';
 import { useAxiosDelete } from "../@core/apis/axios";
 const router = useRouter();
 const route = useRoute();
-
+const isLoading = ref(false);
 let obj;
 const routeId = ref("");
 
@@ -70,9 +70,9 @@ const getData = async()=> {
 
 }
 
-const updateGetData = () => {
-    getData()
-}
+// const updateGetData = () => {
+//     getData()
+// }
 
 const updateData = async()=> {
     let body= data.value;
@@ -101,7 +101,7 @@ const addData = async()=> {
     }
     let body= data.value;
     try{
-        let res = await useAxiosPost(`/admin/product` ,body, obj)
+        await useAxiosPost(`/admin/product` ,body, obj)
         alert("新增成功")
         goBack();
     }   
@@ -122,7 +122,6 @@ const addNewProductSpec = () => {
     })
 }
 const addNewProductSpecBtn = async() =>{
-    const id = data.value.productId;
     const body = {
         "productId": data.value.productId,
         "productSpecList": newProductSpecList.value
@@ -165,6 +164,11 @@ const addNewImageGallery = () => {
     })
 }
 
+const deleteImageGallery = (index) =>{
+    data.value.imageGallery.splice(index,1);
+    alert('刪除');
+}
+
 const uploadImage = async(e)=>{
     const file = e.target.files[0];
     const formData = new FormData();
@@ -200,12 +204,14 @@ const goBack = () => {
 
 // AI 產生
 const createAIWord = async() =>{
- 
+    isLoading.value = true;
     try{
         const res = await useAxiosGet(`/admin/openAi?text=${AIInputWord.value}` , obj)
         AIResultWord.value = res.data
+        isLoading.value = false;
     }
     catch(e){
+        isLoading.value = false;
         if(e?.message){
             alert(e.message)
         }
@@ -230,19 +236,19 @@ onMounted(()=>{
       <TopNavBar />
 
     <div class="container">
-        <h2 class="mr-3" v-if="routeId !== 'add'"> 編輯商品 </h2>
-        <h2 class="mr-3" v-else> 新增商品 </h2>
+        <h2 class="mr-3 my-4"  v-if="routeId !== 'add'"> 編輯商品 </h2>
+        <h2 class="mr-3 my-4" v-else> 新增商品 </h2>
 
         <form class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-6 mb-2">
                 <label for="inputEmail4" class="form-label">大標題</label>
                 <input type="text" v-model="data.title" class="form-control" id="inputEmail4">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 mb-2">
                 <label for="inputPassword4" class="form-label">小標題</label>
                 <input type="text" v-model="data.subtitle" class="form-control" id="inputPassword4">
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div for="" class="form-label mb-2">分類</div> 
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" v-model="data.category" type="checkbox" id="dry" value="dry">
@@ -262,7 +268,7 @@ onMounted(()=>{
                     <label class="form-check-label" for="inlineCheckbox4">貓貓專區</label>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div for="" class="form-label mb-2">主要規格</div> 
                 <table class="table table-bordered">
                     <thead>
@@ -333,7 +339,10 @@ onMounted(()=>{
                             </td>
                             <td class="text-center">
                                 
-                                <label class="col-form-label" >未上架</label>
+                                <select  v-model="item.onlineStatus" class="form-select" aria-label="Default select example" >
+                                    <option :value=true >上架中</option>
+                                    <option :value=false >未上架</option>
+                                </select>
                             </td>
                             <td  > 
                                 <button type="button" class="btn btn-outline-danger" @click="deleteNewProductSpecList(index)">刪除</button>
@@ -351,7 +360,7 @@ onMounted(()=>{
                 </table>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div class="form-label mb-2">其他規格描述</div> 
                 <table class="table ">
                     <tbody>
@@ -375,32 +384,49 @@ onMounted(()=>{
                     <input type="text" name="" id="" placeholder="成年">
                 </div> -->
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div class="form-label mb-2">商品詳細內容</div> 
                 <textarea v-model="data.description" placeholder="htmlText" class="form-control" style="height: 200px" aria-label="With  textarea"></textarea>
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-2">
                 <div class="form-label mb-2">AI 自動生成文案</div> 
                 <div class="row mb-2">
                     <div class="col-6">
                         <input type="text" v-model="AIInputWord" class="form-control " placeholder="AI關鍵字" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
                     <div class="col-3">
-                        <button type="button " class="btn btn-primary me-2"  @click.prevent="createAIWord">產生文案</button>
+                        <button type="button " class="btn btn-primary me-2"  @click.prevent="createAIWord">
+                            <span  v-if="isLoading"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            產生文案
+                        </button>
                     </div>
                 </div>
 
                 <textarea v-model="AIResultWord" class="form-control" style="height: 100px" aria-label="With textarea" readonly></textarea>
 
             </div>
-            <div class="col-12">
-                <div class="form-label mb-2">商品輪播圖</div> 
+            <div class="col-12 mb-4">
+                <div class="form-label ">商品輪播圖</div> 
              
                 <div class="row row-cols-1 row-cols-md-3 g-4">
                     <div class="col" v-for="(item,index) in data.imageGallery" :key="index">
                         <div class="card">
-                            <img :src="item.imgUrl" class="card-img-top" alt="...">
-                            <input type="text" v-model="item.altText" class="form-control">
+                            <div class="position-relative">
+                                <img :src="item.imgUrl" class="card-img-top" alt="...">
+                                <svg  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x position-absolute top-0 end-0 hover-scale" viewBox="0 0 16 16" @click="deleteImageGallery(index)">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                </svg>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3 row">
+                                    <label for="imgAlt" class="col-sm-3 col-form-label">圖片名稱</label>
+                                    <div class="col-sm-9">
+                                    <input type="text"  class="form-control" id="imgAlt"  v-model="item.altText" >
+                                    </div>
+                                  
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="col" v-for="(item,index) in newImageGallery" :key="index">
@@ -408,22 +434,26 @@ onMounted(()=>{
                             <img v-if="item.imgUrl!=''" :src="item.imgUrl" class="card-img-top" alt="...">
                             <input type="file"  v-if="item.imgUrl==''" @change="event => uploadImage(event,index)" class="form-control">
                             <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字">
+
                         </div>
                     </div>
 
                     <div class="col d-flex align-items-center" @click="addNewImageGallery">
-                        +
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus-circle hover-scale" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
                     </div>
 
                 </div>
                 
                 
             </div>
-            <div class="col-12">
-                <button type="button " v-if="routeId !== 'add'" class="btn btn-primary me-2" @click.prevent="updateData">儲存</button>
-                <button type="button " v-else class="btn btn-primary me-2" @click.prevent="addData">新增商品</button>
+            <div class="d-flex justify-content-end col-12 mb-3">
+                <button type="button " v-if="routeId !== 'add'" class="btn btn btn-outline-success me-2" @click.prevent="updateData">儲存</button>
+                <button type="button " v-else class="btn btn btn-outline-success me-2" @click.prevent="addData">新增商品</button>
 
-                <button type="button" class="btn btn-outline-primary" @click="goBack">返回列表頁</button>
+                <button type="button" class="btn btn btn-outline-secondary" @click="goBack">返回列表頁</button>
 
             </div>
         </form>
@@ -434,5 +464,12 @@ onMounted(()=>{
 <style lang="scss" scoped>
 .container{
     margin: 0 auto;
+}
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.2);
 }
 </style>

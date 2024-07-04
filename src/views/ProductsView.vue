@@ -98,6 +98,7 @@ const changePage = (page)=>{
 
  const formatTime = (timeString) => {
     const date = new Date(timeString);
+    date.setUTCHours(date.getUTCHours() + 6); // 加6小時
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
