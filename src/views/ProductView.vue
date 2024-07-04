@@ -242,11 +242,11 @@ onMounted(()=>{
         <form class="row g-3">
             <div class="col-md-6 mb-2">
                 <label for="inputEmail4" class="form-label">大標題</label>
-                <input type="text" v-model="data.title" class="form-control" id="inputEmail4">
+                <input type="text" v-model="data.title" class="form-control" id="inputEmail4" @keydown.enter.prevent>
             </div>
             <div class="col-md-6 mb-2">
                 <label for="inputPassword4" class="form-label">小標題</label>
-                <input type="text" v-model="data.subtitle" class="form-control" id="inputPassword4">
+                <input type="text" v-model="data.subtitle" class="form-control" id="inputPassword4" @keydown.enter.prevent>
             </div>
             <div class="col-12 mb-2">
                 <div for="" class="form-label mb-2">分類</div> 
@@ -293,17 +293,17 @@ onMounted(()=>{
                             </td> -->
                             <td>
                                 <!-- {{ item.weight }} -->
-                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" @keydown.enter.prevent>
                                 g</td>
                             <td>NT$
                                 <!-- {{ item.price }} -->
 
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" @keydown.enter.prevent>
 
                             </td>
                             <td> 
                                 <!-- {{ item.inStock }} -->
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" @keydown.enter.prevent>
                                 件
                             </td>
                             <td> 
@@ -327,14 +327,14 @@ onMounted(()=>{
                     <tbody >
                         <tr v-for="(item,index) in newProductSpecList" :key="index" >
                             <td>
-                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%" v-model="item.weight" name="" id="" @keydown.enter.prevent>
                                 g</td>
                             <td>NT$
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.price" name="" id="" @keydown.enter.prevent>
 
                             </td>
                             <td> 
-                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" >
+                                <input type="text" class="form-control d-inline" style="width:50%"  v-model="item.inStock" name="" id="" @keydown.enter.prevent>
                                 件
                             </td>
                             <td class="text-center">
@@ -366,10 +366,10 @@ onMounted(()=>{
                     <tbody>
                         <tr  v-for="(item,index) in  data.otherInfo" :key="index">
                             <td>
-                                <input type="text" class="form-control" v-model="item.infoName" name="" id="" placeholder="產地">
+                                <input type="text" class="form-control" v-model="item.infoName" name="" id="" placeholder="產地" @keydown.enter.prevent>
                             </td>
                             <td>
-                                <input type="text" class="form-control" v-model="item.infoValue" name="" id="" placeholder="台灣">
+                                <input type="text" class="form-control" v-model="item.infoValue" name="" id="" placeholder="台灣" @keydown.enter.prevent>
                             </td>
                         </tr>
                        
@@ -392,7 +392,7 @@ onMounted(()=>{
                 <div class="form-label mb-2">AI 自動生成文案</div> 
                 <div class="row mb-2">
                     <div class="col-6">
-                        <input type="text" v-model="AIInputWord" class="form-control " placeholder="AI關鍵字" aria-label="Username" aria-describedby="basic-addon1">
+                        <input type="text" v-model="AIInputWord" class="form-control " placeholder="AI關鍵字" aria-label="Username" aria-describedby="basic-addon1" @keydown.enter.prevent>
                     </div>
                     <div class="col-3">
                         <button type="button " class="btn btn-primary me-2"  @click.prevent="createAIWord">
@@ -433,7 +433,7 @@ onMounted(()=>{
                         <div class="card">
                             <img v-if="item.imgUrl!=''" :src="item.imgUrl" class="card-img-top" alt="...">
                             <input type="file"  v-if="item.imgUrl==''" @change="event => uploadImage(event,index)" class="form-control">
-                            <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字">
+                            <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字" @keydown.enter.prevent>
 
                         </div>
                     </div>
