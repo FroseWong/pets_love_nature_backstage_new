@@ -6,8 +6,10 @@ import TopNavBar from '../components/TopNavBar.vue'
 import { useAxiosDelete, useAxiosGet } from '../@core/apis/axios'
 
 import { useRouter } from 'vue-router';
-const router = useRouter();
+import {useLoading} from 'vue-loading-overlay'
 
+const $loading = useLoading({});
+const router = useRouter();
 
 const searchValue = ref({
   searchText: "",
@@ -40,8 +42,9 @@ const getToken = () => {
 
 const getData = async()=> {
 
+    const loader = $loading.show({}); //loading
+  
     let params ={};
-
     params = {
             ...searchValue.value,
     }
@@ -57,12 +60,15 @@ const getData = async()=> {
        
         console.log('storelist ' , res);
         data.value= res.data.content
+        loader.hide();
+
         pageInfo.value = res.data.page
     }
     catch(e){
+        loader.hide();
         console.log(e);
+        alert("系統錯誤")
     }
-
 }
 
 const updateGetData = () => {
