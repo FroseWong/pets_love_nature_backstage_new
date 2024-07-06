@@ -5,7 +5,7 @@
     <!-- 編輯banner div -->
     <div v-show="editBannerModalShow" class="edit_banner_div">
       <div class="edit_out">
-        <h1 class="edit_title">圖片：</h1>
+        <h1 class="edit_title">圖片：<span class="high_light">*</span></h1>
 
         <div class="image_input_div" @click="imageInput.click()">選擇圖片</div>
         <span
@@ -19,7 +19,7 @@
           ref="imageInput"
           type="file"
           accept="image/*"
-          @change="uploadImage"
+          @input="uploadImage"
           style="display: none"
         />
         <div
@@ -30,10 +30,10 @@
         <h1 class="edit_title">超連結：</h1>
         <input class="edit_input" v-model.trim="focusData.hyperlink" type="text" />
 
-        <h1 class="edit_title">大標題：</h1>
+        <h1 class="edit_title">大標題：<span class="high_light">*</span></h1>
         <input class="edit_input" v-model.trim="focusData.title" type="text" />
 
-        <h1 class="edit_title">小標題：</h1>
+        <h1 class="edit_title">小標題：<span class="high_light">*</span></h1>
         <textarea class="edit_input high" v-model.trim="focusData.subtitle" type="text" />
       </div>
       <div class="edit_btn_space">
@@ -45,6 +45,7 @@
     <!-- 新增banner div -->
     <div v-show="addBannerModalShow" class="edit_banner_div">
       <div class="edit_out">
+        <h1 class="edit_title">圖片：<span class="high_light">*</span></h1>
         <div class="image_input_div" @click="imageInput.click()">選擇圖片</div>
         <span
           v-if="isLoading"
@@ -57,7 +58,7 @@
           ref="imageInput"
           type="file"
           accept="image/*"
-          @change="uploadImage"
+          @input="uploadImage"
           style="display: none"
         />
         <div
@@ -69,10 +70,10 @@
         <h1 class="edit_title">超連結：</h1>
         <input class="edit_input" v-model.trim="focusData.hyperlink" type="text" />
 
-        <h1 class="edit_title">大標題：</h1>
+        <h1 class="edit_title">大標題：<span class="high_light">*</span></h1>
         <input class="edit_input" v-model.trim="focusData.title" type="text" />
 
-        <h1 class="edit_title">小標題：</h1>
+        <h1 class="edit_title">小標題：<span class="high_light">*</span></h1>
         <textarea class="edit_input high" v-model.trim="focusData.subtitle" type="text" />
       </div>
       <div class="edit_btn_space">
@@ -198,7 +199,7 @@ const addNewBanner = () => {
   addBannerModalShow.value = true
 }
 const uploadImage = async (e) => {
-  if (e) {
+  if (e?.target.files.length > 0) {
     // 條件待確認
     isLoading.value = true
     const res = await uploadBannerImg(e)
@@ -217,11 +218,6 @@ const dataCheck = (data) => {
   if (!imgUrl) {
     if (!str) str += '圖片未填寫'
     else str += ', 圖片未填寫'
-  }
-
-  if (!hyperlink) {
-    if (!str) str += '超連結未填寫'
-    else str += ', 超連結未填寫'
   }
 
   if (!title) {
@@ -288,6 +284,11 @@ const deleteBannerClick = async (i) => {
   display: flex;
   flex-direction: column;
   position: relative;
+
+  .high_light {
+    color: red;
+    margin-left: 5px;
+  }
 
   .edit_banner_div {
     width: 500px;
