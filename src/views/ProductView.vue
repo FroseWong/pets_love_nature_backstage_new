@@ -2,7 +2,6 @@
 import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
-import TheCkeditor from '../components/TheCkeditor.vue'
 import {useLoading} from 'vue-loading-overlay'
 
 const $loading = useLoading({});
