@@ -98,7 +98,12 @@
         </div>
       </div>
     </div>
-    <div class="add_banner_btn" @click="addNewBanner">新增Banner</div>
+
+    <div class="d-flex justify-content-between align-items-center my-5">
+      <h2 class="mb-0">Banner 管理</h2>
+      <button class="add_banner_btn" @click="addNewBanner">新增Banner</button>
+    </div>
+
     <div class="banner_setting_out">
       <div class="banner_setting_title">
         <div class="each_title grow1">啟動</div>
@@ -106,7 +111,11 @@
         <div class="each_title grow2">功能</div>
       </div>
       <div class="banner_setting_list">
-        <div class="each_banner" v-for="(eachBanner, i) in bannerData" :key="eachBanner._id">
+        <div
+          class="each_banner"
+          v-for="(eachBanner, i) in bannerData"
+          :key="eachBanner._id"
+        >
           <div class="start_up grow1">
             <input
               class="check"
@@ -129,151 +138,154 @@
 </template>
 
 <script setup>
-import TopNavBar from '../components/TopNavBar.vue'
-import { onMounted, ref } from 'vue'
+import TopNavBar from "../components/TopNavBar.vue";
+import { onMounted, ref } from "vue";
 import {
   getBanner,
   addBanner,
   updateBanner,
   deleteBanner,
-  uploadBannerImg
-} from '@/@core/apis/banner'
+  uploadBannerImg,
+} from "@/@core/apis/banner";
 
 onMounted(async () => {
-  bannerData.value = await getBanner()
-})
-const isLoading = ref(false)
-const imageInput = ref(null)
-const previewBannerShowStatus = ref(false)
+  bannerData.value = await getBanner();
+});
+const isLoading = ref(false);
+const imageInput = ref(null);
+const previewBannerShowStatus = ref(false);
 const previewBannerData = ref({
-  imgUrl: '',
-  hyperlink: '',
-  title: '',
-  subtitle: '',
-  active: true
-})
-const bannerData = ref([])
-const focusBannerIndex = ref(0)
-const editBannerModalShow = ref(false)
-const addBannerModalShow = ref(false)
+  imgUrl: "",
+  hyperlink: "",
+  title: "",
+  subtitle: "",
+  active: true,
+});
+const bannerData = ref([]);
+const focusBannerIndex = ref(0);
+const editBannerModalShow = ref(false);
+const addBannerModalShow = ref(false);
 const focusData = ref({
-  imgUrl: '',
-  hyperlink: '',
-  title: '',
-  subtitle: '',
-  active: true
-})
+  imgUrl: "",
+  hyperlink: "",
+  title: "",
+  subtitle: "",
+  active: true,
+});
 
 const openPreviewBanner = (data) => {
-  previewBannerData.value = data
-  previewBannerShowStatus.value = true
-}
+  previewBannerData.value = data;
+  previewBannerShowStatus.value = true;
+};
 
 const closePreviewBanner = () => {
-  previewBannerShowStatus.value = false
-}
+  previewBannerShowStatus.value = false;
+};
 
 const closeEditModal = () => {
-  editBannerModalShow.value = false
-}
+  editBannerModalShow.value = false;
+};
 
 const closeAddModal = () => {
-  addBannerModalShow.value = false
-}
+  addBannerModalShow.value = false;
+};
 
 const addNewBanner = () => {
-  if (imageInput) imageInput.value = ''
+  if (imageInput) imageInput.value = "";
   focusData.value = {
-    imgUrl: '',
-    hyperlink: '',
-    title: '',
-    subtitle: '',
-    active: true
-  }
-  addBannerModalShow.value = true
-}
+    imgUrl: "",
+    hyperlink: "",
+    title: "",
+    subtitle: "",
+    active: true,
+  };
+  addBannerModalShow.value = true;
+};
 const uploadImage = async (e) => {
   if (e) {
     // 條件待確認
-    isLoading.value = true
-    const res = await uploadBannerImg(e)
-    isLoading.value = false
+    isLoading.value = true;
+    const res = await uploadBannerImg(e);
+    isLoading.value = false;
     if (res) {
       if (editBannerModalShow.value || addBannerModalShow.value)
-        focusData.value.imgUrl = res?.imgUrl
+        focusData.value.imgUrl = res?.imgUrl;
     }
   }
-}
+};
 
 const dataCheck = (data) => {
-  const { imgUrl, hyperlink, title, subtitle } = data
-  let str = ''
+  const { imgUrl, hyperlink, title, subtitle } = data;
+  let str = "";
 
   if (!imgUrl) {
-    if (!str) str += '圖片未填寫'
-    else str += ', 圖片未填寫'
+    if (!str) str += "圖片未填寫";
+    else str += ", 圖片未填寫";
   }
 
   if (!hyperlink) {
-    if (!str) str += '超連結未填寫'
-    else str += ', 超連結未填寫'
+    if (!str) str += "超連結未填寫";
+    else str += ", 超連結未填寫";
   }
 
   if (!title) {
-    if (!str) str += '大標題未填寫'
-    else str += ', 大標題未填寫'
+    if (!str) str += "大標題未填寫";
+    else str += ", 大標題未填寫";
   }
 
   if (!subtitle) {
-    if (!str) str += '小標題未填寫'
-    else str += ', 小標題未填寫'
+    if (!str) str += "小標題未填寫";
+    else str += ", 小標題未填寫";
   }
 
   if (str) {
-    alert(str)
-    return false
-  } else return true
-}
+    alert(str);
+    return false;
+  } else return true;
+};
 
 const addNewBannerBtnClick = async () => {
-  const checkStatus = dataCheck(focusData.value)
+  const checkStatus = dataCheck(focusData.value);
   if (checkStatus) {
-    bannerData.value = await addBanner(focusData.value)
-    addBannerModalShow.value = false
+    bannerData.value = await addBanner(focusData.value);
+    addBannerModalShow.value = false;
   }
-}
+};
 
 const activeBtnClick = async (i) => {
-  focusBannerIndex.value = i
-  bannerData.value[focusBannerIndex.value].active = !bannerData.value[focusBannerIndex.value].active
-  focusData.value = bannerData.value[focusBannerIndex.value]
-  const checkStatus = dataCheck(focusData.value)
-  if (checkStatus) bannerData.value[focusBannerIndex.value] = await updateBanner(focusData.value)
-}
+  focusBannerIndex.value = i;
+  bannerData.value[focusBannerIndex.value].active = !bannerData.value[
+    focusBannerIndex.value
+  ].active;
+  focusData.value = bannerData.value[focusBannerIndex.value];
+  const checkStatus = dataCheck(focusData.value);
+  if (checkStatus)
+    bannerData.value[focusBannerIndex.value] = await updateBanner(focusData.value);
+};
 
 const editBannerBtnClick = async () => {
-  const checkStatus = dataCheck(focusData.value)
+  const checkStatus = dataCheck(focusData.value);
   if (checkStatus) {
-    bannerData.value[focusBannerIndex.value] = await updateBanner(focusData.value)
-    editBannerModalShow.value = false
+    bannerData.value[focusBannerIndex.value] = await updateBanner(focusData.value);
+    editBannerModalShow.value = false;
   }
-}
+};
 
 const editBanner = (i) => {
-  focusData.value = bannerData.value[i]
-  focusBannerIndex.value = i
-  editBannerModalShow.value = true
-}
+  focusData.value = bannerData.value[i];
+  focusBannerIndex.value = i;
+  editBannerModalShow.value = true;
+};
 
 const deleteBannerClick = async (i) => {
-  const id = bannerData.value[i]._id
-  const check = confirm('確定要刪除嗎')
+  const id = bannerData.value[i]._id;
+  const check = confirm("確定要刪除嗎");
 
   if (check) {
-    await deleteBanner(id)
-    bannerData.value.splice(i, 1)
+    await deleteBanner(id);
+    bannerData.value.splice(i, 1);
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -426,18 +438,21 @@ const deleteBannerClick = async (i) => {
   }
 
   .add_banner_btn {
-    margin-top: 100px;
-    width: 170px;
-    height: 50px;
-    background-color: rgb(1, 1, 133);
-    color: white;
+    // margin-top: 100px;
+    // width: 170px;
+    // height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
+    // margin-left: auto;
+    // margin-bottom: 30px;
+    padding: 0.5rem 1.25rem;
+    color: white;
+    background-color: rgb(1, 1, 133);
     border-radius: 5px;
-    margin-left: auto;
-    margin-bottom: 30px;
     cursor: pointer;
+    white-space: nowrap;
+
     &:hover {
       background-color: rgb(78, 78, 206);
     }
@@ -455,9 +470,15 @@ const deleteBannerClick = async (i) => {
     }
     .banner_setting_title {
       display: flex;
+      padding: 1rem 0;
+      border-bottom: 1px solid lightgray;
+      margin-bottom: 0.5rem;
+
       .each_title {
         flex-basis: 0;
-        font-size: 50px;
+        // font-size: 50px;
+        font-size: 1.5rem;
+        font-weight: 500;
         text-align: center;
       }
     }
@@ -498,16 +519,20 @@ const deleteBannerClick = async (i) => {
         .btn_space {
           flex-basis: 0;
           display: flex;
+          gap: 1rem;
           flex-wrap: wrap;
           // justify-content: space-around;
           .btn {
             font-size: 20px;
-            width: 120px;
-            height: 50px;
+            font-size: 1.125rem;
+            // width: 120px;
+            // height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 30px 10px;
+            // margin: 0 30px 10px;
+            padding: 0.25rem 0.75rem;
+
             &.preview {
               color: purple;
               border: 1px solid purple;

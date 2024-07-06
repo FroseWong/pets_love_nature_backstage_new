@@ -34,34 +34,38 @@
 </template>
 
 <script setup>
-import { onMounted, onUpdated, ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
+import { onMounted, onUpdated, ref } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
 const props = defineProps({
-  routeStr: String
-})
+  routeStr: String,
+});
 
-const navBarStatus = ref('')
+const navBarStatus = ref("");
 
 onUpdated(() => {
-  navBarStatus.value = props.routeStr
-})
+  navBarStatus.value = props.routeStr;
+});
 
 onMounted(() => {
-  navBarStatus.value = props.routeStr
-})
+  navBarStatus.value = props.routeStr;
+});
 
 // 點擊nav bar
 const navBtnClick = (path) => {
-  router.push({ path: path })
-}
+  router.push({ path: path });
+};
 </script>
 
 <style lang="scss" scoped>
 .top_nav_bar {
   width: 100%;
-  background-color: rgb(209, 204, 204);
   height: 130px;
+  background-color: rgb(209, 204, 204);
+
+  background-color: #f5dac8;
+  // background-color: #F9F0EA;
+
   .nav_bar_block {
     display: flex;
     align-items: center;
