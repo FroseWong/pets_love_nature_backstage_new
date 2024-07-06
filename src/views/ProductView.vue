@@ -2,6 +2,10 @@
 import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
+import TheCkeditor from '../components/TheCkeditor.vue'
+import {useLoading} from 'vue-loading-overlay'
+
+const $loading = useLoading({});
 
 import { useAxiosGet , useAxiosPost , useAxiosPatch } from '../@core/apis/axios'
 
@@ -57,15 +61,19 @@ const getToken = () => {
 
 
 const getData = async()=> {
+    const loader = $loading.show({}); //loading
     if(routeId.value === 'add'){
         return
     }
     try{
         let res = await useAxiosGet(`/admin/product/${routeId.value}` )
+        loader.hide();
         data.value= res.data
     }
     catch(e){
+        loader.hide();
         console.log(e);
+        alert("系統錯誤");
     }
 
 }
@@ -233,7 +241,7 @@ onMounted(()=>{
 </script>
 
 <template>
-      <TopNavBar />
+    <TopNavBar />
 
     <div class="container">
         <h2 class="mr-3 my-4"  v-if="routeId !== 'add'"> 編輯商品 </h2>
