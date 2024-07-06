@@ -86,7 +86,6 @@
       <div
         class="preview_banner_div"
         :style="{ backgroundImage: 'url(' + previewBannerData.imgUrl + ')' }"
-        @click="goUrlHref(previewBannerData?.hyperlink)"
       >
         <font-awesome-icon
           class="fa-solid fa-xmark"
@@ -204,10 +203,6 @@ const uploadImage = async (e) => {
         focusData.value.imgUrl = res?.imgUrl
     }
   }
-}
-
-const goUrlHref = (url) => {
-  window.location.href = url
 }
 
 const dataCheck = (data) => {
@@ -396,7 +391,6 @@ const deleteBannerClick = async (i) => {
       background-size: cover;
       border-radius: 5rem;
       position: relative;
-      cursor: pointer;
       .center_div {
         position: absolute;
         width: 40vw;
