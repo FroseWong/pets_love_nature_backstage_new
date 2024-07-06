@@ -1,7 +1,10 @@
 !
 <template>
   <TopNavBar routeStr="customerManage" />
+
+
   <div class="customer_manage">
+  <h2 class="w-90 mx-auto my-5">消費者管理</h2>
     <div class="top_div">
       <div v-show="showSearchData.show" class="left">
         已搜尋 {{ showSearchData.searchText }} 共{{ showSearchData.totalDocuments }}項符合搜尋
