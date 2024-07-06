@@ -6,16 +6,35 @@
     <div v-show="editBannerModalShow" class="edit_banner_div">
       <div class="edit_out">
         <h1 class="edit_title">圖片：</h1>
-        <input class="edit_input" v-model="focusData.imgUrl" type="text" />
 
+        <div class="image_input_div" @click="imageInput.click()">選擇圖片</div>
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <input
+          class="image_input"
+          ref="imageInput"
+          type="file"
+          accept="image/*"
+          @change="uploadImage"
+          style="display: none"
+        />
+        <div
+          class="show_image"
+          :style="{ backgroundImage: 'url(' + focusData.imgUrl + ')' }"
+          v-show="focusData.imgUrl"
+        ></div>
         <h1 class="edit_title">超連結：</h1>
-        <input class="edit_input" v-model="focusData.hyperlink" type="text" />
+        <input class="edit_input" v-model.trim="focusData.hyperlink" type="text" />
 
         <h1 class="edit_title">大標題：</h1>
-        <input class="edit_input" v-model="focusData.title" type="text" />
+        <input class="edit_input" v-model.trim="focusData.title" type="text" />
 
         <h1 class="edit_title">小標題：</h1>
-        <textarea class="edit_input high" v-model="focusData.subtitle" type="text" />
+        <textarea class="edit_input high" v-model.trim="focusData.subtitle" type="text" />
       </div>
       <div class="edit_btn_space">
         <div class="btn cancel" @click="closeEditModal">取消</div>
@@ -26,17 +45,35 @@
     <!-- 新增banner div -->
     <div v-show="addBannerModalShow" class="edit_banner_div">
       <div class="edit_out">
-        <h1 class="edit_title">圖片：</h1>
-        <input class="edit_input" v-model="focusData.imgUrl" type="text" />
+        <div class="image_input_div" @click="imageInput.click()">選擇圖片</div>
+        <span
+          v-if="isLoading"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <input
+          class="image_input"
+          ref="imageInput"
+          type="file"
+          accept="image/*"
+          @change="uploadImage"
+          style="display: none"
+        />
+        <div
+          class="show_image"
+          :style="{ backgroundImage: 'url(' + focusData.imgUrl + ')' }"
+          v-show="focusData.imgUrl"
+        ></div>
 
         <h1 class="edit_title">超連結：</h1>
-        <input class="edit_input" v-model="focusData.hyperlink" type="text" />
+        <input class="edit_input" v-model.trim="focusData.hyperlink" type="text" />
 
         <h1 class="edit_title">大標題：</h1>
-        <input class="edit_input" v-model="focusData.title" type="text" />
+        <input class="edit_input" v-model.trim="focusData.title" type="text" />
 
         <h1 class="edit_title">小標題：</h1>
-        <textarea class="edit_input high" v-model="focusData.subtitle" type="text" />
+        <textarea class="edit_input high" v-model.trim="focusData.subtitle" type="text" />
       </div>
       <div class="edit_btn_space">
         <div class="btn cancel" @click="closeAddModal">取消</div>
@@ -49,11 +86,12 @@
       <div
         class="preview_banner_div"
         :style="{ backgroundImage: 'url(' + previewBannerData.imgUrl + ')' }"
+        @click="goUrlHref(previewBannerData?.hyperlink)"
       >
         <font-awesome-icon
           class="fa-solid fa-xmark"
           :icon="['fas', 'xmark']"
-          @click="closePreviewBanner"
+          @click.stop="closePreviewBanner"
         />
         <div class="center_div">
           <div class="title">{{ previewBannerData.title }}</div>
@@ -94,11 +132,19 @@
 <script setup>
 import TopNavBar from '../components/TopNavBar.vue'
 import { onMounted, ref } from 'vue'
-import { getBanner, addBanner, updateBanner, deleteBanner } from '@/@core/apis/banner'
+import {
+  getBanner,
+  addBanner,
+  updateBanner,
+  deleteBanner,
+  uploadBannerImg
+} from '@/@core/apis/banner'
 
 onMounted(async () => {
   bannerData.value = await getBanner()
 })
+const isLoading = ref(false)
+const imageInput = ref(null)
 const previewBannerShowStatus = ref(false)
 const previewBannerData = ref({
   imgUrl: '',
@@ -120,7 +166,6 @@ const focusData = ref({
 })
 
 const openPreviewBanner = (data) => {
-  console.log(data)
   previewBannerData.value = data
   previewBannerShowStatus.value = true
 }
@@ -138,6 +183,7 @@ const closeAddModal = () => {
 }
 
 const addNewBanner = () => {
+  if (imageInput) imageInput.value = ''
   focusData.value = {
     imgUrl: '',
     hyperlink: '',
@@ -146,6 +192,22 @@ const addNewBanner = () => {
     active: true
   }
   addBannerModalShow.value = true
+}
+const uploadImage = async (e) => {
+  if (e) {
+    // 條件待確認
+    isLoading.value = true
+    const res = await uploadBannerImg(e)
+    isLoading.value = false
+    if (res) {
+      if (editBannerModalShow.value || addBannerModalShow.value)
+        focusData.value.imgUrl = res?.imgUrl
+    }
+  }
+}
+
+const goUrlHref = (url) => {
+  window.location.href = url
 }
 
 const dataCheck = (data) => {
@@ -196,7 +258,6 @@ const activeBtnClick = async (i) => {
 
 const editBannerBtnClick = async () => {
   const checkStatus = dataCheck(focusData.value)
-  console.log('focusData.value', focusData.value)
   if (checkStatus) {
     bannerData.value[focusBannerIndex.value] = await updateBanner(focusData.value)
     editBannerModalShow.value = false
@@ -206,14 +267,11 @@ const editBannerBtnClick = async () => {
 const editBanner = (i) => {
   focusData.value = bannerData.value[i]
   focusBannerIndex.value = i
-  console.log('focusData.value', focusData.value)
   editBannerModalShow.value = true
 }
 
 const deleteBannerClick = async (i) => {
   const id = bannerData.value[i]._id
-  console.log('id', id)
-
   const check = confirm('確定要刪除嗎')
 
   if (check) {
@@ -233,7 +291,7 @@ const deleteBannerClick = async (i) => {
 
   .edit_banner_div {
     width: 500px;
-    height: 500px;
+    // height: 500px;
     padding-bottom: 20px;
     background-color: white;
     border: 1px solid black;
@@ -245,6 +303,34 @@ const deleteBannerClick = async (i) => {
       width: 80%;
       margin: 0 auto;
       margin-top: 50px;
+      .image_input {
+        margin-bottom: 10px;
+      }
+      .image_input_div {
+        width: 170px;
+        height: 50px;
+        background-color: rgb(1, 1, 133);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        transition: 0.3s;
+        &:hover {
+          background-color: rgb(78, 78, 206);
+        }
+      }
+      .show_image {
+        // background-color: red;
+        width: 100%;
+        height: 200px;
+        margin-bottom: 10px;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+      }
       .edit_title {
         font-size: 20px;
       }
@@ -310,6 +396,7 @@ const deleteBannerClick = async (i) => {
       background-size: cover;
       border-radius: 5rem;
       position: relative;
+      cursor: pointer;
       .center_div {
         position: absolute;
         width: 40vw;
@@ -337,6 +424,7 @@ const deleteBannerClick = async (i) => {
       top: 10px;
       cursor: pointer;
       font-size: 20px;
+      padding: 5px;
     }
   }
 
