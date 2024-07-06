@@ -244,8 +244,8 @@ onMounted(()=>{
     <TopNavBar />
 
     <div class="container">
-        <h2 class="mr-3 my-4"  v-if="routeId !== 'add'"> 編輯商品 </h2>
-        <h2 class="mr-3 my-4" v-else> 新增商品 </h2>
+        <h2 class="mr-3 my-5"  v-if="routeId !== 'add'"> 編輯商品 </h2>
+        <h2 class="mr-3 my-5" v-else> 新增商品 </h2>
 
         <form class="row g-3">
             <div class="col-md-6 mb-2">
