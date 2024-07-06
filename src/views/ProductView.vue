@@ -62,6 +62,7 @@ const getToken = () => {
 const getData = async()=> {
     const loader = $loading.show({}); //loading
     if(routeId.value === 'add'){
+        loader.hide();
         return
     }
     try{
