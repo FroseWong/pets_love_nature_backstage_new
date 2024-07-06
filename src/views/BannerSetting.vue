@@ -425,6 +425,9 @@ const deleteBannerClick = async (i) => {
       cursor: pointer;
       font-size: 20px;
       padding: 5px;
+      &:hover {
+        color: rgb(149, 149, 149);
+      }
     }
   }
 
