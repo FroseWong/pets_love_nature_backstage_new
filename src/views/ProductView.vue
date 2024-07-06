@@ -2,7 +2,6 @@
 import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
-import TheCkeditor from '../components/TheCkeditor.vue'
 import {useLoading} from 'vue-loading-overlay'
 
 const $loading = useLoading({});
@@ -63,6 +62,7 @@ const getToken = () => {
 const getData = async()=> {
     const loader = $loading.show({}); //loading
     if(routeId.value === 'add'){
+        loader.hide();
         return
     }
     try{
