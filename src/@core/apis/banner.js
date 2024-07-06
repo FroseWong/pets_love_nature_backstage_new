@@ -38,3 +38,18 @@ export const deleteBanner = async (id) => {
   console.log('res', res)
   return res?.data
 }
+
+export const uploadBannerImg = async (e) => {
+  const token = localStorage.getItem('token')
+  const file = e.target.files[0]
+  const formData = new FormData()
+  formData.append('file', file)
+  const obj2 = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    }
+  }
+  const res = await useAxiosPost(`/admin/upload/image`, formData, obj2)
+  return res?.data
+}
