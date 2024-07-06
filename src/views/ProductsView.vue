@@ -126,7 +126,7 @@ onMounted(async()=>{
       <TopNavBar routeStr="products" />
 
     <div class="container">
-        <h2 class="mr-3 my-5">商品列表</h2>
+        <h2 class="mr-3 my-5">商品管理</h2>
         <div class="search d-flex mb-2">
             <div class="me-2 ">
                 分類 <br>
