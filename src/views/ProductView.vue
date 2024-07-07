@@ -216,7 +216,7 @@ const uploadImage = async(e,id)=>{
         imgUrl: res.data.imgUrl,
         // altText: newImageGallery.value.altText,
     })
-    // e.target.value = '';
+    e.target.value = '';
     newImageGallery.value = newImageGallery.value.filter(item => item.id !== id);
 
     
