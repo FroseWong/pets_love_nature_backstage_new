@@ -87,14 +87,14 @@ const updateData = async()=> {
     body.productSpecList.forEach((item)=>{
         item.id=item._id
     })
-    console.log('82', body);
+    // console.log('82', body);
 
     await useAxiosPatch(`/admin/product/updateProductById` ,body, obj)
     alert("編輯成功")
     getData();
 }
 const addData = async()=> {
-    console.log('83' , data.value.productSpecList.length);
+    // console.log('83' , data.value.productSpecList.length);
 
     if(data?.value?.otherInfo[0].infoName =="" || data?.value?.otherInfo[0].infoValue ==""){
         alert("請輸入其他規格描述")
@@ -114,7 +114,7 @@ const addData = async()=> {
         goBack();
     }   
     catch(e){
-        console.log('92' , e);
+        console.log(e);
         alert(e.response.data.message);
     }
 }
@@ -160,16 +160,21 @@ const deleteNewProductSpecList = (index) => {
 // imageGallery
 
 const newImageGallery = ref([])
+const ImageGalleryUploadImageStatus = ref(false)
+
 
 const addNewImageGallery = () => {
-    if(newImageGallery.value.length > 0){
+    if(newImageGallery.value.length > 0 && ImageGalleryUploadImageStatus.value == false){
         alert("一次只能新增一筆");
         return
     }
     newImageGallery.value.push({
+        id: Math.random(),
         imgUrl: '',
-        altText: '',
+        // altText: '',
+        loading: false
     })
+    ImageGalleryUploadImageStatus.value = false;
 }
 
 const deleteImageGallery = (index) =>{
@@ -177,11 +182,18 @@ const deleteImageGallery = (index) =>{
     alert('刪除');
 }
 
-const uploadImage = async(e)=>{
+const uploadImage = async(e,id)=>{
+
+    newImageGallery.value.forEach(item => {
+        if (item.id === id) {
+            item.loading = true;
+        }
+    });
+
+    ImageGalleryUploadImageStatus.value = true;
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
-
 
     let token2 = localStorage.getItem('token')
     let obj2 = {
@@ -193,14 +205,22 @@ const uploadImage = async(e)=>{
     
     const res = await useAxiosPost(`/admin/upload/image` ,formData, obj2)
     // newImageGallery.value[index].imgUrl = res.data.imgUrl
+    newImageGallery.value.forEach(item => {
+        if (item.id === id) {
+            item.loading = false;
+        }
+    });
 
-
+    ImageGalleryUploadImageStatus.value = false;
     data.value.imageGallery.push({
         imgUrl: res.data.imgUrl,
-        altText: newImageGallery.value.altText,
+        // altText: newImageGallery.value.altText,
     })
-    e.target.value = '';
-    newImageGallery.value = [];
+    // e.target.value = '';
+    newImageGallery.value = newImageGallery.value.filter(item => item.id !== id);
+
+    
+    // newImageGallery.value = [];
 
 }
 
@@ -438,11 +458,21 @@ onMounted(()=>{
                         </div>
                     </div>
                     <div class="col" v-for="(item,index) in newImageGallery" :key="index">
-                        <div class="card">
+                        <div class="card ">
                             <img v-if="item.imgUrl!=''" :src="item.imgUrl" class="card-img-top" alt="...">
-                            <input type="file"  v-if="item.imgUrl==''" @change="event => uploadImage(event,index)" class="form-control">
-                            <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字" @keydown.enter.prevent>
 
+                            <input type="file"  v-if="item.imgUrl==''" @change="event => uploadImage(event,item.id)" class="form-control mb-2">
+                            <!-- <div class="row mb-2">
+                                <div class="col-sm-10">
+                                    <input type="text" v-model="item.altText" class="form-control" placeholder="請輸入圖片文字" @keydown.enter.prevent>
+                                </div>
+                            </div> -->
+                            <div class="row mb-2">
+                                <div class="loadingShow" v-if="item.loading==true">
+                                    <span  class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>圖片上傳中</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
