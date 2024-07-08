@@ -171,7 +171,7 @@ onMounted(async()=>{
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item, index) in data" :key="index">
+                <tr v-for="(item, index) in data" :key="index"  class="align-middle">
                     <!-- <td >{{ item.productId.title }}</td> -->
                     <td  >{{ item.product.title }}</td>
                     <td >{{ item.weight }}g</td>
