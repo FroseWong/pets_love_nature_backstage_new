@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 
 import { createApp } from 'vue'
+import CKEditor from '@ckeditor/ckeditor5-vue'
+
 import { createPinia } from 'pinia'
 import {LoadingPlugin} from 'vue-loading-overlay'; //loading
 import 'vue-loading-overlay/dist/css/index.css';
@@ -18,7 +20,7 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-
+app.use(CKEditor)
 app.use(createPinia())
 app.use(router)
 app.use(LoadingPlugin);

@@ -2,14 +2,14 @@
 import { onMounted, ref } from "vue";
 
 import TopNavBar from '../components/TopNavBar.vue'
+import CKEditor from '../components/CKEditor.vue'
+
 import {useLoading} from 'vue-loading-overlay'
-
-const $loading = useLoading({});
-
 import { useAxiosGet , useAxiosPost , useAxiosPatch } from '../@core/apis/axios'
-
 import { useRoute , useRouter } from 'vue-router';
 import { useAxiosDelete } from "../@core/apis/axios";
+
+const $loading = useLoading({});
 const router = useRouter();
 const route = useRoute();
 const isLoading = ref(false);
@@ -414,7 +414,8 @@ onMounted(()=>{
             </div>
             <div class="col-12 mb-2">
                 <div class="form-label mb-2">商品詳細內容</div> 
-                <textarea v-model="data.description" placeholder="htmlText" class="form-control" style="height: 200px" aria-label="With  textarea"></textarea>
+                <!-- <textarea v-model="data.description" placeholder="htmlText" class="form-control" style="height: 200px" aria-label="With  textarea"></textarea> -->
+                <CKEditor v-model="data.description" />
             </div>
             <div class="col-12 mb-2">
                 <div class="form-label mb-2">AI 自動生成文案</div> 
