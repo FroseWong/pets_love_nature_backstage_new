@@ -11,6 +11,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^42.0.0",
+    "@ckeditor/ckeditor5-vue": "^6.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
@@ -18,6 +20,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "ckeditor5-premium-features": "^42.0.0",
     "dayjs": "^1.11.11",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.7.5",
