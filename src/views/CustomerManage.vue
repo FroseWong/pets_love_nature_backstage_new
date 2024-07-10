@@ -2,9 +2,8 @@
 <template>
   <TopNavBar routeStr="customerManage" />
 
-
   <div class="customer_manage">
-  <h2 class="w-90 mx-auto my-5">消費者管理</h2>
+    <h2 class="w-90 mx-auto my-5">消費者管理</h2>
     <div class="top_div">
       <div v-show="showSearchData.show" class="left">
         已搜尋 {{ showSearchData.searchText }} 共{{ showSearchData.totalDocuments }}項符合搜尋
@@ -291,6 +290,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useLoading } from 'vue-loading-overlay'
 import { io } from 'socket.io-client'
 import dayjs from 'dayjs'
 import {
@@ -300,6 +300,7 @@ import {
 } from '@/@core/apis/customerManage'
 import { useRouter } from 'vue-router'
 import TopNavBar from '../components/TopNavBar.vue'
+const loading = useLoading({})
 const router = useRouter()
 const statusMap = new Map([
   [1, '訂單成立，處理中'],
@@ -448,6 +449,7 @@ const tempRequestSameRef = computed(() => {
 }) // 完全一致 0:false/1:true
 
 onMounted(async () => {
+  const loader = loading.show({}) //loading
   const obj = {
     page: '1', // 頁數
     limit: '10',
@@ -457,6 +459,7 @@ onMounted(async () => {
     sortOrder: '' // 排序種類 accountStatus:帳號狀態, email:電子郵件
   }
   const res = await getCustomerList(obj)
+  loader.hide()
   if (res) {
     customerData.value = res.data
     originData.value = res.data.map((eachCustomer) => {
@@ -570,6 +573,8 @@ const generatePaginationArr = () => {
 
 // 搜尋功能
 const search = async (btnclick = false) => {
+  const loader = loading.show({}) //loading
+  // loader.hide()
   let sorNum
   if (sortChoose.value) {
     if (sortChoose.value === 'email') {
@@ -589,6 +594,8 @@ const search = async (btnclick = false) => {
   }
 
   const res = await getCustomerList(obj)
+  loader.hide()
+
   if (res) {
     customerData.value = res.data
     originData.value = res.data.map((eachCustomer) => {

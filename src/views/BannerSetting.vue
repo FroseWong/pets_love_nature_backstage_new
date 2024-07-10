@@ -144,9 +144,13 @@ import {
   deleteBanner,
   uploadBannerImg
 } from '@/@core/apis/banner'
+import { useLoading } from 'vue-loading-overlay'
+const loading = useLoading({})
 
 onMounted(async () => {
+  const loader = loading.show({}) //loading
   bannerData.value = await getBanner()
+  loader.hide()
 })
 const isLoading = ref(false)
 const imageInput = ref(null)

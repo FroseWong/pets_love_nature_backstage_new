@@ -42,9 +42,7 @@
                 <div class="each_title">操作按鈕</div>
                 <div class="each_content">
                   <div class="btn_space">
-                    <div class="btn normal" @click="changeStep('normal')">
-                      正常next step
-                    </div>
+                    <div class="btn normal" @click="changeStep('normal')">正常next step</div>
                     <div
                       class="btn return"
                       v-show="operateData.orderStatus <= -1"
@@ -60,11 +58,7 @@
                 <div class="each_title">商品狀態流程</div>
                 <div class="each_content">
                   <div class="step_div">
-                    <div
-                      class="each_step"
-                      v-for="eachStepStr in stepStringArr"
-                      :key="eachStepStr"
-                    >
+                    <div class="each_step" v-for="eachStepStr in stepStringArr" :key="eachStepStr">
                       -- {{ eachStepStr }}
                     </div>
                   </div>
@@ -124,11 +118,7 @@
                 <div class="each_title">商品狀態流程</div>
                 <div class="each_content">
                   <div class="step_div">
-                    <div
-                      class="each_step"
-                      v-for="eachStepStr in stepStringArr"
-                      :key="eachStepStr"
-                    >
+                    <div class="each_step" v-for="eachStepStr in stepStringArr" :key="eachStepStr">
                       -- {{ eachStepStr }}
                     </div>
                   </div>
@@ -181,9 +171,7 @@
     <h2 class="w-90 mx-auto my-5">訂單管理</h2>
     <div class="top_div">
       <div v-show="showSearchData.show" class="left">
-        已搜尋 {{ showSearchData.searchText }} 共{{
-          showSearchData.totalDocuments
-        }}項符合搜尋
+        已搜尋 {{ showSearchData.searchText }} 共{{ showSearchData.totalDocuments }}項符合搜尋
       </div>
 
       <div v-show="!showSearchData.show" class="hidden_div"></div>
@@ -271,16 +259,14 @@
           </th>
           <td class="body_td">{{ eachOrder.email }}</td>
           <td class="body_td">
-            {{ dayjs(eachOrder.createdAt).format("YYYY-MM-DD HH:mm:ss") }}
+            {{ dayjs(eachOrder.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
           </td>
 
           <td class="body_td">{{ transformStatus(eachOrder.orderStatus) }}</td>
           <td class="body_td">
             <div
               class="check_btn"
-              @click="
-                checkBtnClick(eachOrder, index), getStepStrArr(eachOrder.orderStatus)
-              "
+              @click="checkBtnClick(eachOrder, index), getStepStrArr(eachOrder.orderStatus)"
               data-bs-toggle="modal"
               data-bs-target="#checkModal"
             >
@@ -323,10 +309,7 @@
           >
             <a class="page-link" href="#">{{ eachPagination }}</a>
           </li>
-          <li
-            class="page-item"
-            :class="{ disabled: pageData.totalPages == pageData.nowPage }"
-          >
+          <li class="page-item" :class="{ disabled: pageData.totalPages == pageData.nowPage }">
             <a @click="preNextBtnClick(1)" class="page-link" href="#">下一頁</a>
           </li>
         </ul>
@@ -334,13 +317,7 @@
 
       <div class="limit_div">
         <label class="limit_label" for="">一頁幾筆</label>
-        <select
-          class="limit_select"
-          name=""
-          id=""
-          v-model="limitRef"
-          @change="limitChange"
-        >
+        <select class="limit_select" name="" id="" v-model="limitRef" @change="limitChange">
           <option value="10">10</option>
           <option value="15">15</option>
           <option value="20">20</option>
@@ -351,204 +328,209 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
-import TopNavBar from "../components/TopNavBar.vue";
-import { getOrder, updateOrder, getOrderList } from "@/@core/apis/orderManage";
-import dayjs from "dayjs";
+import { computed, onMounted, ref } from 'vue'
+import TopNavBar from '../components/TopNavBar.vue'
+import { getOrder, updateOrder, getOrderList } from '@/@core/apis/orderManage'
+import dayjs from 'dayjs'
+import { useLoading } from 'vue-loading-overlay'
+const loading = useLoading({})
 
 const statusMap = new Map([
-  [1, "訂單成立，處理中"],
-  [2, "已出貨，運送中"],
-  [3, "已送達"],
-  [4, "已取貨，待評價"],
-  [5, "完成評價"],
-  [-1, "退貨中"],
-  [-2, "已退貨"],
-  [-3, "訂單未成立，未付款"],
-]);
+  [1, '訂單成立，處理中'],
+  [2, '已出貨，運送中'],
+  [3, '已送達'],
+  [4, '已取貨，待評價'],
+  [5, '完成評價'],
+  [-1, '退貨中'],
+  [-2, '已退貨'],
+  [-3, '訂單未成立，未付款']
+])
 
 const operateData = ref({
-  email: "",
+  email: '',
   orderStatus: -3,
-  userId: "",
-  _id: "",
-});
+  userId: '',
+  _id: ''
+})
 
 // 點擊查看要顯示的資料
 const checkData = ref({
   orderData: {
-    email: "",
+    email: '',
     orderStatus: -3,
-    userId: "",
-    _id: "",
+    userId: '',
+    _id: ''
   },
   orderIndex: 0,
   orderProductList: [
     {
-      productId: "664c984699eb1ab9b3c4f679",
+      productId: '664c984699eb1ab9b3c4f679',
       price: 180,
       quantity: 2,
-      productTitle: "鮮嫩雞胸肉凍乾66",
+      productTitle: '鮮嫩雞胸肉凍乾66',
       coverImg:
-        "https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      weight: 220,
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
     },
     {
-      productId: "664c984699eb1ab9b3c4f679",
+      productId: '664c984699eb1ab9b3c4f679',
       price: 180,
       quantity: 2,
-      productTitle: "鮮嫩雞胸肉凍乾66",
+      productTitle: '鮮嫩雞胸肉凍乾66',
       coverImg:
-        "https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      weight: 220,
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
     },
     {
-      productId: "664c984699eb1ab9b3c4f679",
+      productId: '664c984699eb1ab9b3c4f679',
       price: 180,
       quantity: 2,
-      productTitle: "鮮嫩雞胸肉凍乾66",
+      productTitle: '鮮嫩雞胸肉凍乾66',
       coverImg:
-        "https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      weight: 220,
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
     },
     {
-      productId: "664c984699eb1ab9b3c4f679",
+      productId: '664c984699eb1ab9b3c4f679',
       price: 180,
       quantity: 2,
-      productTitle: "鮮嫩雞胸肉凍乾66",
+      productTitle: '鮮嫩雞胸肉凍乾66',
       coverImg:
-        "https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      weight: 220,
-    },
-  ],
-});
+        'https://images.unsplash.com/photo-1597843786411-a7fa8ad44a95?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      weight: 220
+    }
+  ]
+})
 
 const orderProductListTotalPrice = computed(() => {
   const totalPrice = checkData.value.orderProductList.reduce((acc, cur) => {
-    return acc + cur.price * cur.quantity;
-  }, 0);
-  return totalPrice;
-});
+    return acc + cur.price * cur.quantity
+  }, 0)
+  return totalPrice
+})
 
-const operateIndex = ref(0); // 紀錄點擊的是哪一個index
-const normalStepArr = ref([-3, 1, 2, 3, 4]); //正常流程arr
-const returnStepArr = ref([-1, -2]); // 退貨流程arr
-const stepStringArr = ref([]); //存放每個step的文字
+const operateIndex = ref(0) // 紀錄點擊的是哪一個index
+const normalStepArr = ref([-3, 1, 2, 3, 4]) //正常流程arr
+const returnStepArr = ref([-1, -2]) // 退貨流程arr
+const stepStringArr = ref([]) //存放每個step的文字
 
-const orderData = ref([]);
+const orderData = ref([])
 
 // 儲存api回傳頁數資料
 const pageData = ref({
-  nowPage: "1",
-  totalPages: 170,
-});
+  nowPage: '1',
+  totalPages: 170
+})
 const showSearchData = ref({
   show: false,
-  searchText: "",
-  totalDocuments: "",
-});
+  searchText: '',
+  totalDocuments: ''
+})
 // 分頁資料
-const paginationArr = ref([]);
-const pageRef = ref("1"); // 頁數
-const filterStatusRef = ref(1); // 物流排序 1:小到大 / 0:大到小
-const searchTextRef = ref(""); // 搜尋關鍵字
-const requestSameRef = ref(""); // 完全一致 0:false/1:true
-const searchTypeRef = ref(""); // 文字搜尋種類 email,orderNum
-const limitRef = ref("10"); // 一頁幾筆
-const orderStatusSortNum = ref(1); // 物流排序箭頭
-const createdAtSortNum = ref(1); // 物流排序箭頭
-const sortChoose = ref(""); // 選擇用哪個sort // orderStatus createdAt
+const paginationArr = ref([])
+const pageRef = ref('1') // 頁數
+const filterStatusRef = ref(1) // 物流排序 1:小到大 / 0:大到小
+const searchTextRef = ref('') // 搜尋關鍵字
+const requestSameRef = ref('') // 完全一致 0:false/1:true
+const searchTypeRef = ref('') // 文字搜尋種類 email,orderNum
+const limitRef = ref('10') // 一頁幾筆
+const orderStatusSortNum = ref(1) // 物流排序箭頭
+const createdAtSortNum = ref(1) // 物流排序箭頭
+const sortChoose = ref('') // 選擇用哪個sort // orderStatus createdAt
 
 // 暫時紀錄
-const sameRef = ref(false);
+const sameRef = ref(false)
 
-const tempSearchTypeRef = ref(""); // 文字搜尋種類 email,orderNum
-const tempSearchTextRef = ref(""); // 搜尋關鍵字
+const tempSearchTypeRef = ref('') // 文字搜尋種類 email,orderNum
+const tempSearchTextRef = ref('') // 搜尋關鍵字
 const tempRequestSameRef = computed(() => {
-  return sameRef.value ? "1" : "0";
-}); // 完全一致 0:false/1:true
+  return sameRef.value ? '1' : '0'
+}) // 完全一致 0:false/1:true
 
 onMounted(async () => {
-  const email = sessionStorage.getItem("orderManageEmail");
+  const email = sessionStorage.getItem('orderManageEmail')
+  const loader = loading.show({}) //loading
   if (email) {
-    tempSearchTypeRef.value = "email";
-    tempSearchTextRef.value = email;
-    sameRef.value = true;
+    tempSearchTypeRef.value = 'email'
+    tempSearchTextRef.value = email
+    sameRef.value = true
     const obj = {
-      page: "1", // 頁數
-      limit: "10",
+      page: '1', // 頁數
+      limit: '10',
       filterStatus: 0, // 物流排序 1:小到大 / 0:大到小
       searchText: email, // 搜尋關鍵字
       requestSame: 1, // 完全一致 0:false/1:true
-      searchType: "email", // 文字搜尋種類 email,orderNum
-      sortOrder: "createdAt",
-    };
-    const res = await getOrder(obj);
+      searchType: 'email', // 文字搜尋種類 email,orderNum
+      sortOrder: 'createdAt'
+    }
+    const res = await getOrder(obj)
     if (res) {
-      orderData.value = res.OrderData;
-      pageData.value = res.page;
-      generatePaginationArr(pageData.value);
-      sessionStorage.removeItem("orderManageEmail");
-      showSearchData.value.show = true;
-      showSearchData.value.searchText = email;
-      if (res?.page) showSearchData.value.totalDocuments = res?.page.totalDocuments;
+      orderData.value = res.OrderData
+      pageData.value = res.page
+      generatePaginationArr(pageData.value)
+      sessionStorage.removeItem('orderManageEmail')
+      showSearchData.value.show = true
+      showSearchData.value.searchText = email
+      if (res?.page) showSearchData.value.totalDocuments = res?.page.totalDocuments
     }
   } else {
     const obj = {
-      page: "1", // 頁數
-      limit: "10",
+      page: '1', // 頁數
+      limit: '10',
       filterStatus: 0, // 物流排序 1:小到大 / 0:大到小
-      searchText: "", // 搜尋關鍵字
-      requestSame: "", // 完全一致 0:false/1:true
-      searchType: "", // 文字搜尋種類 email,orderNum
-      sortOrder: "createdAt",
-    };
-    const res = await getOrder(obj);
+      searchText: '', // 搜尋關鍵字
+      requestSame: '', // 完全一致 0:false/1:true
+      searchType: '', // 文字搜尋種類 email,orderNum
+      sortOrder: 'createdAt'
+    }
+    const res = await getOrder(obj)
     if (res) {
-      orderData.value = res.OrderData;
-      pageData.value = res.page;
-      generatePaginationArr(pageData.value);
+      orderData.value = res.OrderData
+      pageData.value = res.page
+      generatePaginationArr(pageData.value)
     }
   }
-});
+  loader.hide()
+})
 
 // 轉換orderStatus
 const transformStatus = (num) => {
-  return statusMap.get(num);
-};
+  return statusMap.get(num)
+}
 
 // 產生分頁數字
 const generatePaginationArr = () => {
-  const { nowPage, totalPages } = pageData.value;
+  const { nowPage, totalPages } = pageData.value
 
   //   if()
-  paginationArr.value.length = 0;
+  paginationArr.value.length = 0
 
   // 如果大於5頁
   if (totalPages > 5) {
-    let x = Math.trunc(nowPage / 5);
-    const remainder = nowPage % 5;
-    if (remainder === 0) x -= 1;
+    let x = Math.trunc(nowPage / 5)
+    const remainder = nowPage % 5
+    if (remainder === 0) x -= 1
     for (let i = 1; i <= 5; i++) {
-      const focusPagination = x * 5 + i;
+      const focusPagination = x * 5 + i
       if (focusPagination <= totalPages) {
-        paginationArr.value.push(focusPagination);
+        paginationArr.value.push(focusPagination)
       }
     }
   } else {
     // 小於5頁
     for (let i = 1; i <= totalPages; i++) {
-      paginationArr.value.push(i);
+      paginationArr.value.push(i)
     }
   }
-};
+}
 
 // 搜尋功能
 const search = async (btnclick = false) => {
-  if (!searchTextRef.value || !searchTypeRef.value) requestSameRef.value = "";
-  let filterStatusNum;
-  if (sortChoose.value === "orderStatus") filterStatusNum = orderStatusSortNum.value;
-  else if (sortChoose.value === "createdAt") filterStatusNum = createdAtSortNum.value;
+  const loader = loading.show({}) //loading
+  if (!searchTextRef.value || !searchTypeRef.value) requestSameRef.value = ''
+  let filterStatusNum
+  if (sortChoose.value === 'orderStatus') filterStatusNum = orderStatusSortNum.value
+  else if (sortChoose.value === 'createdAt') filterStatusNum = createdAtSortNum.value
   const obj = {
     page: pageRef.value, // 頁數
     filterStatus: filterStatusNum, // 物流排序 1:小到大 / 0:大到小
@@ -556,226 +538,223 @@ const search = async (btnclick = false) => {
     searchText: searchTextRef.value, // 搜尋關鍵字
     requestSame: requestSameRef.value, // 完全一致 0:false/1:true
     searchType: searchTypeRef.value, // 文字搜尋種類 email,orderNum
-    sortOrder: sortChoose.value, //篩選選項
-  };
+    sortOrder: sortChoose.value //篩選選項
+  }
 
-  const res = await getOrder(obj);
+  const res = await getOrder(obj)
   if (res) {
-    orderData.value = res.OrderData;
+    orderData.value = res.OrderData
     if (res?.page) {
-      pageData.value = res.page;
-      generatePaginationArr(pageData.value);
-      showSearchData.value.searchText = searchTextRef.value;
-      showSearchData.value.totalDocuments = res?.page.totalDocuments;
+      pageData.value = res.page
+      generatePaginationArr(pageData.value)
+      showSearchData.value.searchText = searchTextRef.value
+      showSearchData.value.totalDocuments = res?.page.totalDocuments
 
-      if (btnclick) showSearchData.value.show = true;
+      if (btnclick) showSearchData.value.show = true
     } else {
       // 沒有page資訊
-      pageData.value.length = 0;
-      paginationArr.value.length = 0;
+      pageData.value.length = 0
+      paginationArr.value.length = 0
     }
   }
-};
+  loader.hide()
+}
 
 // 透過點擊按鈕【搜尋】進行搜尋
 const searchBtnClick = async () => {
-  let str = "";
-  if (
-    tempSearchTextRef.value ||
-    tempSearchTypeRef.value ||
-    tempRequestSameRef.value == 1
-  ) {
+  let str = ''
+  if (tempSearchTextRef.value || tempSearchTypeRef.value || tempRequestSameRef.value == 1) {
     if (!tempSearchTextRef.value) {
-      if (!str) str += "搜尋框未輸入內容";
-      else str += ", 搜尋框未輸入內容";
+      if (!str) str += '搜尋框未輸入內容'
+      else str += ', 搜尋框未輸入內容'
     }
 
     if (!tempSearchTypeRef.value) {
-      if (!str) str += "搜尋種類未選擇";
-      else str += ", 搜尋種類未選擇";
+      if (!str) str += '搜尋種類未選擇'
+      else str += ', 搜尋種類未選擇'
     }
   }
 
   if (str) {
     // 有錯誤
-    alert(str);
+    alert(str)
   } else {
     // 沒錯誤
-    searchTextRef.value = tempSearchTextRef.value;
-    searchTypeRef.value = tempSearchTypeRef.value;
-    requestSameRef.value = tempRequestSameRef.value;
-    pageRef.value = 1;
-    await search(true);
+    searchTextRef.value = tempSearchTextRef.value
+    searchTypeRef.value = tempSearchTypeRef.value
+    requestSameRef.value = tempRequestSameRef.value
+    pageRef.value = 1
+    await search(true)
   }
-};
+}
 
 // 上一頁下一頁按鈕點擊
 const preNextBtnClick = async (num) => {
-  if (num > 0 && pageData.value.nowPage == pageData.value.totalPages) return;
-  if (num < 0 && pageData.value.nowPage <= 1) return;
-  pageRef.value = Number(pageRef.value) + num;
+  if (num > 0 && pageData.value.nowPage == pageData.value.totalPages) return
+  if (num < 0 && pageData.value.nowPage <= 1) return
+  pageRef.value = Number(pageRef.value) + num
 
-  await search();
-};
+  await search()
+}
 
 // 頁碼點擊
 const paginationClick = async (pagination) => {
-  pageRef.value = pagination;
-  await search();
-};
+  pageRef.value = pagination
+  await search()
+}
 
 // 更改文字搜尋種類
 const searchTypeChange = () => {
-  if (tempSearchTypeRef.value === "orderNum") sameRef.value = true;
-};
+  if (tempSearchTypeRef.value === 'orderNum') sameRef.value = true
+}
 
 // 更改完全一致
 const sameChange = () => {
-  if (tempSearchTypeRef.value === "orderNum") sameRef.value = true;
-};
+  if (tempSearchTypeRef.value === 'orderNum') sameRef.value = true
+}
 
 // 更改一頁幾筆
 const limitChange = async () => {
-  pageRef.value = 1;
-  await search();
-};
+  pageRef.value = 1
+  await search()
+}
 
 // 更改物流排序
 const filterStatusChange = async () => {
-  pageRef.value = 1;
-  filterStatusRef.value = filterStatusRef.value ? 0 : 1;
-  await search();
-};
+  pageRef.value = 1
+  filterStatusRef.value = filterStatusRef.value ? 0 : 1
+  await search()
+}
 
 const sortClick = async (str) => {
   if (!sortChoose.value) {
     // 如果原本甚麼都沒選
-    sortChoose.value = str;
+    sortChoose.value = str
   } else {
     // 如果原本已經有選擇
 
     // 如果是點擊原本已經選擇的
     if (sortChoose.value === str) {
-      if (str === "orderStatus") {
-        orderStatusSortNum.value = orderStatusSortNum.value === 1 ? 0 : 1;
-      } else if (str === "createdAt") {
-        createdAtSortNum.value = createdAtSortNum.value === 1 ? 0 : 1;
+      if (str === 'orderStatus') {
+        orderStatusSortNum.value = orderStatusSortNum.value === 1 ? 0 : 1
+      } else if (str === 'createdAt') {
+        createdAtSortNum.value = createdAtSortNum.value === 1 ? 0 : 1
       }
     } else {
       // 點擊不是原本選擇的
-      orderStatusSortNum.value = 1;
-      createdAtSortNum.value = 1;
-      sortChoose.value = str;
+      orderStatusSortNum.value = 1
+      createdAtSortNum.value = 1
+      sortChoose.value = str
     }
   }
-  await search();
-};
+  await search()
+}
 
 // 點擊齒輪
 const operateBtnClick = (orderData, index) => {
-  operateData.value = orderData;
-  operateIndex.value = index;
-};
+  operateData.value = orderData
+  operateIndex.value = index
+}
 
 const checkBtnClick = async (orderData, index) => {
   if (orderData?._id) {
-    checkData.value.orderProductList.length = 0;
-    const orderListData = await getOrderList(orderData?._id);
-    checkData.value.orderData = orderData;
-    checkData.value.orderIndex = index;
-    checkData.value.orderProductList = orderListData[0].orderProductList;
+    checkData.value.orderProductList.length = 0
+    const orderListData = await getOrderList(orderData?._id)
+    checkData.value.orderData = orderData
+    checkData.value.orderIndex = index
+    checkData.value.orderProductList = orderListData[0].orderProductList
   }
-};
+}
 
 // 取得step arr 文字
 const getStepStrArr = (num) => {
-  stepStringArr.value.length = 0;
+  stepStringArr.value.length = 0
 
-  let focusIndex;
+  let focusIndex
   if (num === -3 || num > 0) {
     // 正常流程
-    focusIndex = normalStepArr.value.findIndex((eachNum) => eachNum === num);
+    focusIndex = normalStepArr.value.findIndex((eachNum) => eachNum === num)
     for (let i = 0; i <= focusIndex; i++) {
-      stepStringArr.value.push(transformStatus(normalStepArr.value[i]));
+      stepStringArr.value.push(transformStatus(normalStepArr.value[i]))
     }
   } else {
     // 退貨流程
-    focusIndex = returnStepArr.value.findIndex((eachNum) => eachNum === num);
+    focusIndex = returnStepArr.value.findIndex((eachNum) => eachNum === num)
     for (let i = 0; i <= focusIndex; i++) {
-      stepStringArr.value.push(transformStatus(returnStepArr.value[i]));
+      stepStringArr.value.push(transformStatus(returnStepArr.value[i]))
     }
   }
-};
+}
 
 // 更改step
 const changeStep = async (str) => {
-  if (str === "normal") {
+  if (str === 'normal') {
     // 正常流程
 
     const returnIndex = returnStepArr.value.findIndex(
       (eachNum) => eachNum === operateData.value.orderStatus
-    );
+    )
 
     if (returnIndex !== -1) {
-      alert("已走退貨流程，不能回到正常流程");
-      return;
+      alert('已走退貨流程，不能回到正常流程')
+      return
     } else {
       const normalIndex = normalStepArr.value.findIndex(
         (eachNum) => eachNum === operateData.value.orderStatus
-      );
+      )
 
       if (normalIndex >= normalStepArr.value.length - 1) {
-        alert("已是正常流程的最後一步");
+        alert('已是正常流程的最後一步')
       } else {
-        const nextStatus = normalStepArr.value[normalIndex + 1];
-        const orderId = operateData.value._id;
+        const nextStatus = normalStepArr.value[normalIndex + 1]
+        const orderId = operateData.value._id
         const obj = {
           orderId: orderId,
-          orderStatus: nextStatus,
-        };
-        await updateOrder(obj);
-        getStepStrArr(nextStatus); // 更新流程文字
-        orderData.value[operateIndex.value].orderStatus = nextStatus; // 更新列表內的資料
+          orderStatus: nextStatus
+        }
+        await updateOrder(obj)
+        getStepStrArr(nextStatus) // 更新流程文字
+        orderData.value[operateIndex.value].orderStatus = nextStatus // 更新列表內的資料
       }
     }
-  } else if (str === "return") {
+  } else if (str === 'return') {
     // 退貨流程
     const returnIndex = returnStepArr.value.findIndex(
       (eachNum) => eachNum === operateData.value.orderStatus
-    );
+    )
 
     if (returnIndex === -1) {
       // 剛走退貨流程
-      const nextStatus = returnStepArr.value[0];
-      const orderId = operateData.value._id;
+      const nextStatus = returnStepArr.value[0]
+      const orderId = operateData.value._id
       const obj = {
         orderId: orderId,
-        orderStatus: nextStatus,
-      };
+        orderStatus: nextStatus
+      }
 
-      await updateOrder(obj);
-      getStepStrArr(nextStatus); // 更新流程文字
-      orderData.value[operateIndex.value].orderStatus = nextStatus; // 更新列表內的資料
+      await updateOrder(obj)
+      getStepStrArr(nextStatus) // 更新流程文字
+      orderData.value[operateIndex.value].orderStatus = nextStatus // 更新列表內的資料
     } else {
       // 原本就已經走退貨
       if (returnIndex >= returnStepArr.value.length - 1) {
-        alert("已是退貨流程的最後一步");
-        return;
+        alert('已是退貨流程的最後一步')
+        return
       } else {
-        const nextStatus = returnStepArr.value[returnIndex + 1];
-        const orderId = operateData.value._id;
+        const nextStatus = returnStepArr.value[returnIndex + 1]
+        const orderId = operateData.value._id
         const obj = {
           orderId: orderId,
-          orderStatus: nextStatus,
-        };
+          orderStatus: nextStatus
+        }
 
-        await updateOrder(obj);
-        getStepStrArr(nextStatus); // 更新流程文字
-        orderData.value[operateIndex.value].orderStatus = nextStatus; // 更新列表內的資料
+        await updateOrder(obj)
+        getStepStrArr(nextStatus) // 更新流程文字
+        orderData.value[operateIndex.value].orderStatus = nextStatus // 更新列表內的資料
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -994,7 +973,7 @@ const changeStep = async (str) => {
 
   /* Transparent Overlay */
   .page_loading:before {
-    content: "";
+    content: '';
     display: block;
     position: fixed;
     top: 0;
@@ -1016,7 +995,7 @@ const changeStep = async (str) => {
   }
 
   .page_loading:not(:required):after {
-    content: "";
+    content: '';
     display: block;
     font-size: 20px;
     width: 1em;
@@ -1028,15 +1007,23 @@ const changeStep = async (str) => {
     -o-animation: spinner 1500ms infinite linear;
     animation: spinner 1500ms infinite linear;
     border-radius: 0.5em;
-    -webkit-box-shadow: rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
-      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0, rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
-      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0, rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
-      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0, rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
+    -webkit-box-shadow:
+      rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
       rgba(54, 167, 199, 0.7) 1.1em -1.1em 0 0;
-    box-shadow: rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
-      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0, rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
-      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0, rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
-      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0, rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
+    box-shadow:
+      rgba(54, 167, 199, 0.7) 1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) 1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 1.5em 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em 1.1em 0 0,
+      rgba(54, 167, 199, 0.7) -1.5em 0 0 0,
+      rgba(54, 167, 199, 0.7) -1.1em -1.1em 0 0,
+      rgba(54, 167, 199, 0.7) 0 -1.5em 0 0,
       rgba(54, 167, 199, 0.7) 1.1em -1.1em 0 0;
   }
 
