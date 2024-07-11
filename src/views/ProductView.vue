@@ -227,7 +227,9 @@ const uploadImage = async(e,id)=>{
 //
 
 const goBack = () => {
-    router.push(`/products`);
+    if(confirm("你確定要返回列表頁嗎?")){
+        router.push(`/products`);
+    }
 }
 
 // AI 產生
