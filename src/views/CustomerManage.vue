@@ -486,12 +486,14 @@ onMounted(async () => {
     )
     if (messageListId.value === data?.customerId) {
       messageListRef.value.push(data)
-      socket.value.emit('read', {
-        customerId: messageListId.value,
-        role: 'admin'
-      })
+
       if (!messageListShowStatus.value.show || !messageListShowStatus.value.extend) {
         if (focusCustomerData) focusCustomerData.unreadCount += 1
+      } else {
+        socket.value.emit('read', {
+          customerId: messageListId.value,
+          role: 'admin'
+        })
       }
     } else {
       if (focusCustomerData) focusCustomerData.unreadCount += 1
@@ -779,7 +781,6 @@ const checkBtnClick = (data) => {
 
 const messageListExtendChange = (status) => {
   messageListShowStatus.value.extend = status
-
   socket.value.emit('read', {
     customerId: messageListId.value,
     role: 'admin'
